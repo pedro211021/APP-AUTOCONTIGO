@@ -1,0 +1,1375 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0a1015">
+<title>AutoContigo</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=Instrument+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#eef2f5;--bg2:#e6ecf0;--panel:#ffffff;--panel2:#f3f6f8;--line:#dbe3e9;--line2:#c6d1d9;
+  --text:#0d1a23;--mut:#586a77;--mut2:#8494a0;
+  --brand:#ff6a2b;--brand-ink:#1c0d04;--brand-soft:rgba(255,106,43,.12);
+  --ok:#0f9d6e;--warn:#b7791f;--bad:#d93a58;--info:#1d78c9;
+  --ok-soft:rgba(15,157,110,.12);--warn-soft:rgba(224,150,20,.16);--bad-soft:rgba(217,58,88,.12);--info-soft:rgba(29,120,201,.12);
+  --fd:'Bricolage Grotesque','Instrument Sans',system-ui,-apple-system,'Segoe UI',sans-serif;
+  --fb:'Instrument Sans',system-ui,-apple-system,'Segoe UI',sans-serif;
+  --r1:22px;--r2:14px;--r3:10px;--side:236px;
+  box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media(prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#0a1015;--bg2:#0e161c;--panel:#131d25;--panel2:#1a2630;--line:#243440;--line2:#31444f;
+  --text:#eaf1f5;--mut:#8ea0ad;--mut2:#62747f;--brand-soft:rgba(255,106,43,.14);
+  --ok:#35d39a;--warn:#ffb627;--bad:#ff5470;--info:#59b8ff;
+  --ok-soft:rgba(53,211,154,.13);--warn-soft:rgba(255,182,39,.14);--bad-soft:rgba(255,84,112,.14);--info-soft:rgba(89,184,255,.14)}}
+:root[data-theme="dark"]{
+  --bg:#0a1015;--bg2:#0e161c;--panel:#131d25;--panel2:#1a2630;--line:#243440;--line2:#31444f;
+  --text:#eaf1f5;--mut:#8ea0ad;--mut2:#62747f;--brand-soft:rgba(255,106,43,.14);
+  --ok:#35d39a;--warn:#ffb627;--bad:#ff5470;--info:#59b8ff;
+  --ok-soft:rgba(53,211,154,.13);--warn-soft:rgba(255,182,39,.14);--bad-soft:rgba(255,84,112,.14);--info-soft:rgba(89,184,255,.14)}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth;scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--bg);color:var(--text);font-family:var(--fb);font-size:15px;line-height:1.5;min-height:100vh;-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility}
+h1,h2,h3,h4{font-family:var(--fd);margin:0;letter-spacing:-.02em;line-height:1.1}
+p{margin:0}
+button,input,select,textarea{font:inherit;color:inherit}
+button{cursor:pointer}
+a{color:inherit;text-decoration:none}
+.hidden{display:none!important}
+:focus-visible{outline:2.5px solid var(--brand);outline-offset:2px;border-radius:8px}
+::selection{background:var(--brand);color:var(--brand-ink)}
+.ic{flex-shrink:0;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.num{font-variant-numeric:tabular-nums}
+.mut{color:var(--mut)}.sm{font-size:12.5px}.xs{font-size:11.5px}
+.row-flex{display:flex;align-items:center;gap:10px}.wrapf{flex-wrap:wrap}.grow{flex:1;min-width:0}.spread{justify-content:space-between}
+.stack>*+*{margin-top:12px}
+
+/* Buttons */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;border:1px solid transparent;border-radius:12px;padding:11px 18px;font-weight:600;font-size:14px;line-height:1.1;transition:transform .15s,background .15s,border-color .15s;white-space:nowrap}
+.btn:active{transform:scale(.97)}
+.btn.primary{background:var(--brand);color:var(--brand-ink)}
+.btn.primary:hover{background:#ff7d45}
+.btn.soft{background:var(--panel2);border-color:var(--line);color:var(--text)}
+.btn.soft:hover{border-color:var(--line2)}
+.btn.ghost{background:transparent;border-color:var(--line2);color:var(--text)}
+.btn.bad{background:var(--bad-soft);color:var(--bad);border-color:color-mix(in srgb,var(--bad) 35%,transparent)}
+.btn.ok{background:var(--ok-soft);color:var(--ok);border-color:color-mix(in srgb,var(--ok) 35%,transparent)}
+.btn.s{padding:8px 12px;font-size:13px;border-radius:10px}
+.btn.block{width:100%}
+.btn[disabled]{opacity:.55;pointer-events:none}
+.ibtn{width:40px;height:40px;display:grid;place-items:center;border-radius:12px;border:1px solid var(--line);background:var(--panel);position:relative}
+.ibtn:hover{border-color:var(--line2)}
+.badge{position:absolute;top:-5px;right:-5px;min-width:18px;height:18px;padding:0 5px;border-radius:9px;background:var(--bad);color:#fff;font-size:10.5px;font-weight:700;display:grid;place-items:center}
+
+/* Cards & bits */
+.card{background:var(--panel);border:1px solid var(--line);border-radius:var(--r1);padding:20px}
+.card.tight{padding:14px;border-radius:var(--r2)}
+.card h3{font-size:17px}
+.card-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:14px}
+.pill{display:inline-flex;align-items:center;gap:5px;padding:4px 10px;border-radius:99px;font-size:11.5px;font-weight:600;background:var(--panel2);color:var(--mut);border:1px solid var(--line);white-space:nowrap}
+.pill.ok{background:var(--ok-soft);color:var(--ok);border-color:transparent}
+.pill.warn{background:var(--warn-soft);color:var(--warn);border-color:transparent}
+.pill.bad{background:var(--bad-soft);color:var(--bad);border-color:transparent}
+.pill.info{background:var(--info-soft);color:var(--info);border-color:transparent}
+.pill.brand{background:var(--brand-soft);color:var(--brand);border-color:transparent}
+.dot{width:8px;height:8px;border-radius:50%;background:var(--mut2);flex-shrink:0}
+.dot.ok{background:var(--ok)}.dot.warn{background:var(--warn)}.dot.bad{background:var(--bad)}
+.bar{height:7px;border-radius:9px;background:var(--line);overflow:hidden}
+.bar>i{display:block;height:100%;border-radius:9px;background:var(--brand);transition:width .5s cubic-bezier(.2,.7,.2,1)}
+.bar>i.ok{background:var(--ok)}.bar>i.warn{background:var(--warn)}.bar>i.bad{background:var(--bad)}
+.seg{display:inline-flex;background:var(--panel2);border:1px solid var(--line);border-radius:12px;padding:3px;gap:2px;max-width:100%;overflow-x:auto}
+.seg button{border:0;background:none;padding:8px 14px;border-radius:9px;font-weight:600;font-size:13px;color:var(--mut);white-space:nowrap}
+.seg button.on{background:var(--panel);color:var(--text);box-shadow:0 0 0 1px var(--line)}
+.grid{display:grid;gap:14px}
+.g2{grid-template-columns:repeat(2,minmax(0,1fr))}.g3{grid-template-columns:repeat(3,minmax(0,1fr))}.g4{grid-template-columns:repeat(4,minmax(0,1fr))}
+.list{display:grid;gap:8px}
+.item{display:flex;align-items:center;gap:12px;background:var(--panel2);border:1px solid var(--line);border-radius:var(--r2);padding:12px 14px;text-align:left;width:100%}
+button.item:hover,a.item:hover{border-color:var(--line2)}
+.item .t{font-weight:600;font-size:14px}
+.item .s{font-size:12.5px;color:var(--mut)}
+.chip-ic{width:38px;height:38px;border-radius:11px;display:grid;place-items:center;background:var(--brand-soft);color:var(--brand);flex-shrink:0}
+.chip-ic.ok{background:var(--ok-soft);color:var(--ok)}.chip-ic.warn{background:var(--warn-soft);color:var(--warn)}.chip-ic.bad{background:var(--bad-soft);color:var(--bad)}.chip-ic.info{background:var(--info-soft);color:var(--info)}
+.empty{text-align:center;padding:26px 14px;color:var(--mut);border:1.5px dashed var(--line2);border-radius:var(--r2)}
+.empty b{display:block;color:var(--text);font-family:var(--fd);font-size:16px;margin-bottom:4px}
+.note{display:flex;gap:10px;align-items:flex-start;background:var(--info-soft);color:var(--text);border-radius:var(--r2);padding:12px 14px;font-size:13px}
+.note .ic{color:var(--info);margin-top:2px}
+.note.warn{background:var(--warn-soft)}.note.warn .ic{color:var(--warn)}
+.note.bad{background:var(--bad-soft)}.note.bad .ic{color:var(--bad)}
+
+/* Forms */
+.field{display:block}
+.field>span{display:block;font-size:12.5px;font-weight:600;color:var(--mut);margin-bottom:6px}
+.inp{width:100%;background:var(--panel2);border:1.5px solid var(--line);border-radius:12px;padding:12px 14px;outline:none;transition:border-color .15s;min-height:46px}
+.inp:focus{border-color:var(--brand)}
+.inp.err{border-color:var(--bad)}
+.inp-wrap{position:relative}
+.inp-wrap .inp{padding-left:42px}
+.inp-wrap>.ic{position:absolute;left:14px;top:13px;color:var(--mut2)}
+.inp-wrap>button{position:absolute;right:6px;top:5px;width:36px;height:36px;border:0;background:none;color:var(--mut);border-radius:9px;display:grid;place-items:center}
+.ferr{color:var(--bad);font-size:12.5px;margin-top:6px;min-height:0}
+.fgrid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}
+.fgrid .w{grid-column:1/-1}
+input[type=range]{width:100%;accent-color:var(--brand);height:28px}
+.check{display:flex;align-items:center;gap:10px;font-size:14px}
+.check input{width:20px;height:20px;accent-color:var(--brand)}
+.switch{position:relative;width:46px;height:28px;flex-shrink:0}
+.switch input{position:absolute;inset:0;opacity:0;width:100%;height:100%;margin:0;cursor:pointer;z-index:1}
+.switch i{position:absolute;inset:0;background:var(--line2);border-radius:99px;transition:.2s}
+.switch i::after{content:"";position:absolute;left:3px;top:3px;width:22px;height:22px;border-radius:50%;background:#fff;transition:.2s}
+.switch input:checked+i{background:var(--brand)}
+.switch input:checked+i::after{transform:translateX(18px)}
+.switch input:focus-visible+i{outline:2.5px solid var(--brand);outline-offset:2px}
+
+/* ===== Public screens ===== */
+#pub{min-height:100vh}
+.ptop{display:flex;align-items:center;justify-content:space-between;padding:16px max(20px,calc((100% - 1160px)/2))}
+.brand{display:flex;align-items:center;gap:10px;font-family:var(--fd);font-weight:800;font-size:19px;letter-spacing:-.03em;background:none;border:0;padding:0}
+.brand .mk{width:34px;height:34px;border-radius:10px;background:var(--brand);color:var(--brand-ink);display:grid;place-items:center}
+.brand b{color:var(--brand);font-weight:800}.brand .wd{white-space:nowrap}
+.land{display:grid;grid-template-columns:1.05fr .95fr;gap:48px;align-items:center;width:min(1160px,calc(100% - 40px));margin:0 auto;padding:36px 0 56px}
+.land h1{font-size:clamp(40px,6vw,72px);font-weight:800;letter-spacing:-.045em;line-height:.98}
+.land h1 span{color:var(--mut)}
+.land .lead{font-size:18px;color:var(--mut);max-width:520px;margin-top:20px}
+.land .cta{display:flex;gap:10px;flex-wrap:wrap;margin-top:28px}
+.land .cta .btn{padding:14px 22px;font-size:15px}
+.cluster{background:linear-gradient(180deg,#0c141b,#101a22);border:1px solid #223440;border-radius:32px;padding:22px 22px 18px;position:relative;color:#eaf1f5}
+.cluster .gv{width:100%;max-width:440px;margin:0 auto;display:block}
+.cluster-row{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:8px}
+.cluster-row div{background:rgba(255,255,255,.04);border:1px solid #223440;border-radius:14px;padding:10px 12px}
+.cluster-row small{display:block;color:#8ea0ad;font-size:11.5px}
+.cluster-row b{font-family:var(--fd);font-size:19px}
+.cluster-row .ok{color:#35d39a}
+.feats{width:min(1160px,calc(100% - 40px));margin:0 auto;padding:10px 0 70px;display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
+.feats article{border-top:2px solid var(--line2);padding-top:16px}
+.feats article .ic{color:var(--brand);margin-bottom:10px}
+.feats h3{font-size:18px;margin-bottom:6px}
+.feats p{color:var(--mut);font-size:14px}
+.pfoot{border-top:1px solid var(--line);padding:22px;text-align:center;color:var(--mut);font-size:12.5px}
+.auth{display:grid;grid-template-columns:.9fr 1.1fr;min-height:calc(100vh - 20px)}
+.auth-art{background:#0c141b;color:#eaf1f5;padding:36px;display:flex;flex-direction:column;justify-content:space-between;position:relative;overflow:hidden}
+.auth-art h2{font-size:clamp(28px,3.2vw,42px);font-weight:800;letter-spacing:-.04em;max-width:11em}
+.auth-art ul{list-style:none;padding:0;margin:22px 0 0;display:grid;gap:12px;color:#a9b8c3;font-size:14.5px}
+.auth-art li{display:flex;gap:10px;align-items:flex-start}
+.auth-art li .ic{color:var(--brand);margin-top:2px}
+.auth-art .gv{position:absolute;right:-90px;bottom:-90px;width:380px;opacity:.28}
+.auth-main{display:grid;place-items:center;padding:28px 20px}
+.auth-box{width:min(410px,100%)}
+.auth-box h1{font-size:32px;font-weight:800;letter-spacing:-.04em}
+.auth-box .sub{color:var(--mut);margin:6px 0 22px}
+.auth-box .field+.field{margin-top:14px}
+.linkbtn{background:none;border:0;padding:0;color:var(--brand);font-weight:600}
+.strength{display:grid;grid-template-columns:repeat(4,1fr);gap:4px;margin-top:8px}
+.strength i{height:4px;border-radius:4px;background:var(--line)}
+.divider{display:flex;align-items:center;gap:12px;color:var(--mut2);font-size:12px;margin:18px 0}
+.divider::before,.divider::after{content:"";height:1px;background:var(--line);flex:1}
+.wiz{width:min(620px,calc(100% - 32px));margin:0 auto;padding:22px 0 60px}
+.steps{display:flex;gap:6px;margin:18px 0 26px}
+.steps i{height:5px;border-radius:5px;background:var(--line);flex:1}
+.steps i.on{background:var(--brand)}
+.choice{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.choice button{background:var(--panel);border:2px solid var(--line);border-radius:var(--r1);padding:26px 14px;display:grid;justify-items:center;gap:10px;font-weight:700;font-family:var(--fd);font-size:18px}
+.choice button.on{border-color:var(--brand);background:var(--brand-soft)}
+.choice button .ic{color:var(--brand)}
+
+/* ===== App shell ===== */
+#shell{display:grid;grid-template-columns:var(--side) 1fr;min-height:100vh}
+.side{position:sticky;top:0;height:100vh;align-self:start;padding:18px 14px;border-right:1px solid var(--line);background:var(--bg2);display:flex;flex-direction:column;gap:14px;overflow-y:auto}
+.side .brand{padding:4px 8px 10px}
+.nav{display:grid;gap:2px}
+.nav a,.nav button{display:flex;align-items:center;gap:12px;padding:10px 12px;border-radius:12px;border:0;background:none;color:var(--mut);font-weight:600;font-size:14px;text-align:left;width:100%}
+.nav a:hover,.nav button:hover{background:var(--panel2);color:var(--text)}
+.nav a.on{background:var(--panel);color:var(--text);box-shadow:0 0 0 1px var(--line)}
+.nav a.on .ic{color:var(--brand)}
+.nav .sos{color:var(--bad)}
+.nav-sec{font-size:11.5px;color:var(--mut2);font-weight:600;padding:12px 12px 4px}
+.side-user{margin-top:auto;display:flex;align-items:center;gap:10px;padding:10px;border:1px solid var(--line);border-radius:14px;background:var(--panel)}
+.avatar{width:36px;height:36px;border-radius:50%;background:var(--brand);color:var(--brand-ink);display:grid;place-items:center;font-family:var(--fd);font-weight:800;flex-shrink:0}
+.main{min-width:0;padding-bottom:40px}
+.topbar{position:sticky;top:0;z-index:30;display:flex;align-items:center;gap:10px;padding:calc(10px + env(safe-area-inset-top,0px)) 24px 10px;background:color-mix(in srgb,var(--bg) 88%,transparent);backdrop-filter:blur(14px);border-bottom:1px solid var(--line)}
+.topbar .brand{display:none}
+.vsw{display:flex;align-items:center;gap:8px;background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:7px 12px;font-weight:600;font-size:13.5px;max-width:240px}
+.vsw span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.screen{width:min(1080px,100%);margin:0 auto;padding:26px 24px 24px}
+.phead{display:flex;align-items:flex-end;justify-content:space-between;gap:14px;flex-wrap:wrap;margin-bottom:20px}
+.phead h1{font-size:clamp(28px,4vw,38px);font-weight:800;letter-spacing:-.04em}
+.phead p{color:var(--mut);margin-top:6px;max-width:56ch}
+.phead .acts{display:flex;gap:8px;flex-wrap:wrap}
+.backl{display:inline-flex;align-items:center;gap:6px;color:var(--mut);font-weight:600;font-size:13px;background:none;border:0;padding:0;margin-bottom:10px}
+.tabbar{display:none}
+.hgrid{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,.85fr);gap:16px;align-items:start}
+.hgrid>div{display:grid;gap:16px}
+.vhead{display:flex;align-items:center;gap:14px}
+.vbadge{width:54px;height:54px;border-radius:16px;background:var(--brand);color:var(--brand-ink);display:grid;place-items:center;flex-shrink:0}
+.vhead h2{font-size:24px;font-weight:800}
+.health{display:grid;grid-template-columns:200px 1fr;gap:18px;align-items:center}
+.factor{display:grid;grid-template-columns:96px 1fr 34px;gap:10px;align-items:center;font-size:13px}
+.factor+.factor{margin-top:9px}
+.factor b{font-variant-numeric:tabular-nums;text-align:right}
+.tiles{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.tile{display:grid;justify-items:start;gap:10px;padding:14px;border-radius:var(--r2);background:var(--panel2);border:1px solid var(--line);font-weight:600;font-size:13.5px;text-align:left}
+.tile:hover{border-color:var(--brand)}
+.tile .ic{color:var(--brand)}
+.stat small{display:block;color:var(--mut);font-size:12.5px}
+.stat strong{display:block;font-family:var(--fd);font-size:26px;letter-spacing:-.03em;margin-top:2px}
+.tip{display:flex;gap:14px}
+.tip h4{font-size:16px;margin-bottom:4px}
+.tip p{color:var(--mut);font-size:13.5px}
+.check-step{display:flex;align-items:center;gap:10px;font-size:13.5px;padding:6px 0}
+.check-step .box{width:20px;height:20px;border-radius:6px;border:1.8px solid var(--line2);display:grid;place-items:center;color:var(--brand-ink);flex-shrink:0}
+.check-step.done .box{background:var(--ok);border-color:var(--ok)}
+.check-step.done span{color:var(--mut);text-decoration:line-through}
+
+/* Gauge */
+.gv{display:block;width:100%;height:auto}
+.gv .trk{fill:none;stroke:var(--line);stroke-width:12;stroke-linecap:round}
+.gv .val{fill:none;stroke-width:12;stroke-linecap:round;transition:stroke-dashoffset .8s cubic-bezier(.2,.7,.2,1),stroke .3s}
+.gv .tick{stroke:var(--line2);stroke-width:2;stroke-linecap:round}
+.gv .needle{transition:transform .8s cubic-bezier(.2,.7,.2,1);transform-box:view-box}
+.gv text{font-family:var(--fd);fill:var(--text)}
+.gv .lbl{fill:var(--mut);font-family:var(--fb)}
+.cluster .gv .trk,.spd .gv .trk,.auth-art .gv .trk{stroke:#213340}.cluster .gv .tick,.spd .gv .tick,.auth-art .gv .tick{stroke:#33495a}.cluster .gv text,.spd .gv text,.auth-art .gv text{fill:#eaf1f5}.cluster .gv .lbl,.spd .gv .lbl,.auth-art .gv .lbl{fill:#8ea0ad}
+
+/* GPS */
+.gpsgrid{display:grid;grid-template-columns:minmax(0,1.5fr) minmax(0,1fr);gap:16px;align-items:start}
+.mapbox{background:#0c141b;border:1px solid #223440;border-radius:var(--r1);overflow:hidden;position:relative}
+.mapbox svg{display:block;width:100%;height:auto}
+.mapbox .overlay{position:absolute;left:12px;top:12px;display:flex;gap:6px;flex-wrap:wrap}
+.mapbox .overlay .pill{background:rgba(12,20,27,.85);color:#eaf1f5;border-color:#2a3d4b}
+.spd{background:#0c141b;border:1px solid #223440;border-radius:var(--r1);padding:12px 16px 16px;color:#eaf1f5}
+.kv{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-top:6px}
+.kv div{background:rgba(255,255,255,.05);border:1px solid #223440;border-radius:12px;padding:9px 12px}
+.kv small{display:block;color:#8ea0ad;font-size:11.5px}
+.kv b{font-family:var(--fd);font-size:17px}
+.pulse{animation:pulse 1.6s ease-out infinite;transform-box:fill-box;transform-origin:center}
+@keyframes pulse{0%{transform:scale(.6);opacity:.9}100%{transform:scale(2.4);opacity:0}}
+.srow{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 0}
+.srow+.srow{border-top:1px solid var(--line)}
+
+/* Lists specifics */
+.mcard{display:grid;gap:10px}
+.dcard{display:grid;grid-template-columns:64px 1fr auto;gap:14px;align-items:center}
+.ring{position:relative;width:64px;height:64px}
+.ring svg{width:64px;height:64px;transform:rotate(-90deg)}
+.ring b{position:absolute;inset:0;display:grid;place-items:center;font-family:var(--fd);font-size:15px}
+.bars{display:flex;align-items:flex-end;gap:10px;height:140px;padding-top:8px}
+.bars>div{flex:1;display:flex;flex-direction:column;justify-content:flex-end;align-items:center;gap:6px;height:100%}
+.bars .b{width:100%;max-width:44px;border-radius:8px 8px 3px 3px;background:var(--line2);min-height:4px}
+.bars .b.cur{background:var(--brand)}
+.bars small{color:var(--mut);font-size:11px}
+.legend{display:grid;gap:8px;font-size:13px}
+.legend div{display:flex;align-items:center;gap:8px}
+.legend i{width:10px;height:10px;border-radius:3px}
+.legend b{margin-left:auto;font-variant-numeric:tabular-nums}
+.donut{display:grid;grid-template-columns:150px 1fr;gap:18px;align-items:center}
+details.lesson{background:var(--panel2);border:1px solid var(--line);border-radius:var(--r2);padding:0}
+details.lesson summary{list-style:none;cursor:pointer;display:flex;align-items:center;gap:12px;padding:14px}
+details.lesson summary::-webkit-details-marker{display:none}
+details.lesson summary .chev{margin-left:auto;transition:transform .2s;color:var(--mut)}
+details.lesson[open] summary .chev{transform:rotate(90deg)}
+details.lesson .body{padding:0 16px 16px 64px;color:var(--mut);font-size:14px}
+details.lesson .body ol,details.lesson .body ul{padding-left:18px;margin:8px 0}
+details.lesson .body li{margin:4px 0}
+details.lesson .body b{color:var(--text)}
+.light{display:flex;gap:12px;align-items:flex-start;padding:12px;border-radius:var(--r2);background:var(--panel2);border:1px solid var(--line)}
+.light .lb{width:38px;height:38px;border-radius:50%;display:grid;place-items:center;flex-shrink:0;color:#fff}
+.light .lb.r{background:#e5384f}.light .lb.y{background:#e6a10c}.light .lb.g{background:#1fa971}.light .lb.b{background:#2f86e0}
+.sos-num{display:flex;align-items:center;gap:14px;padding:16px;border-radius:var(--r2);background:var(--bad-soft);border:1px solid color-mix(in srgb,var(--bad) 40%,transparent)}
+.sos-num b{font-family:var(--fd);font-size:30px;color:var(--bad);letter-spacing:-.03em}
+.step-n{width:28px;height:28px;border-radius:50%;background:var(--brand);color:var(--brand-ink);font-weight:800;display:grid;place-items:center;flex-shrink:0;font-family:var(--fd)}
+
+/* Sheet & toast */
+.sheet{position:fixed;inset:0;z-index:80;display:none}
+.sheet.open{display:block}
+.sheet .bd{position:absolute;inset:0;background:rgba(3,8,12,.6);animation:fade .2s}
+.sheet .pn{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:min(520px,calc(100% - 24px));max-height:calc(100vh - 40px);overflow:auto;background:var(--panel);border:1px solid var(--line2);border-radius:26px;padding:22px;animation:pop .22s cubic-bezier(.2,.8,.3,1)}
+.sheet .hd{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px}
+.sheet .hd h3{font-size:21px}
+@keyframes fade{from{opacity:0}to{opacity:1}}
+@keyframes pop{from{opacity:0;transform:translate(-50%,-46%) scale(.97)}to{opacity:1;transform:translate(-50%,-50%)}}
+.toast{position:fixed;z-index:120;left:50%;bottom:24px;transform:translate(-50%,30px);opacity:0;pointer-events:none;background:#0d1a23;color:#eaf1f5;border:1px solid #33495a;border-radius:14px;padding:11px 14px;font-size:13.5px;display:flex;gap:12px;align-items:center;transition:.25s;max-width:calc(100% - 24px);box-shadow:0 12px 40px rgba(0,0,0,.35)}
+.toast.show{opacity:1;transform:translate(-50%,0);pointer-events:auto}
+.toast button{background:none;border:0;color:var(--brand);font-weight:700;padding:0}
+.toast.bad{border-color:var(--bad)}
+
+@media(max-width:1000px){
+  #shell{grid-template-columns:1fr}
+  .side{display:none}
+  .topbar{padding-left:16px;padding-right:16px}
+  .topbar .brand{display:flex}
+  .topbar .brand .word{display:none}
+  .tabbar{display:flex;position:fixed;bottom:0;left:0;right:0;z-index:40;background:color-mix(in srgb,var(--bg) 94%,transparent);backdrop-filter:blur(16px);border-top:1px solid var(--line);padding:6px 6px calc(6px + env(safe-area-inset-bottom,0px))}
+  .tabbar a{flex:1;display:grid;justify-items:center;gap:2px;padding:6px 0;color:var(--mut);font-size:11px;font-weight:600;border-radius:12px}
+  .tabbar a.on{color:var(--brand)}
+  .main{padding-bottom:84px}
+  .screen{padding:20px 16px}
+  .hgrid,.gpsgrid{grid-template-columns:1fr}
+  .land{grid-template-columns:1fr;gap:34px}
+  .feats{grid-template-columns:repeat(2,1fr)}
+  .auth{grid-template-columns:1fr}.auth-art{display:none}
+  .toast{bottom:88px}
+}
+@media(max-width:620px){
+  .g2,.g3,.g4{grid-template-columns:1fr}
+  .g2.keep{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .health{grid-template-columns:1fr;justify-items:center}.health>div:last-child{width:100%}
+  .tiles{grid-template-columns:repeat(2,1fr)}
+  .fgrid{grid-template-columns:1fr}
+  .donut{grid-template-columns:1fr;justify-items:center}.donut .legend{width:100%}
+  .dcard{grid-template-columns:56px 1fr}.dcard .acts{grid-column:1/-1}
+  .feats{grid-template-columns:1fr}
+  .sheet .pn{top:auto;bottom:0;left:0;transform:none;width:100%;border-radius:26px 26px 0 0;animation:up .25s cubic-bezier(.2,.8,.3,1)}
+  @keyframes up{from{transform:translateY(40px);opacity:0}to{transform:none;opacity:1}}
+  .cluster-row b{font-size:16px}
+  .vsw{max-width:150px}
+}
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}html{scroll-behavior:auto}}
+</style>
+</head>
+<body>
+<div id="pub"></div>
+<div id="shell" class="hidden">
+  <aside class="side" id="side"></aside>
+  <div class="main">
+    <header class="topbar" id="topbar"></header>
+    <main class="screen" id="screen"></main>
+  </div>
+  <nav class="tabbar" id="tabbar" aria-label="Navegación principal"></nav>
+</div>
+<div id="sheet" class="sheet" role="dialog" aria-modal="true" aria-labelledby="sheetTitle">
+  <div class="bd" onclick="closeSheet()"></div>
+  <div class="pn"><div class="hd"><h3 id="sheetTitle"></h3><button class="ibtn" onclick="closeSheet()" aria-label="Cerrar" id="sheetX"></button></div><div id="sheetBody"></div></div>
+</div>
+<div id="toast" class="toast" role="status" aria-live="polite"></div>
+<script>
+"use strict";
+/* ============ Utilidades ============ */
+const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
+const esc=v=>String(v??"").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[m]));
+const uid=()=>Date.now().toString(36)+Math.random().toString(36).slice(2,7);
+const pad=n=>String(n).padStart(2,"0");
+const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
+const rnd=(a,b)=>a+Math.random()*(b-a);
+const avg=a=>a.length?a.reduce((x,y)=>x+y,0)/a.length:0;
+const todayStr=()=>{const d=new Date();return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`};
+const addDays=(n,from)=>{const d=from?new Date(from+"T00:00:00"):new Date();d.setDate(d.getDate()+n);return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`};
+const daysUntil=s=>Math.round((new Date(s+"T00:00:00")-new Date(todayStr()+"T00:00:00"))/864e5);
+const money=n=>"$"+Math.round(Number(n)||0).toLocaleString("es-CO");
+const nf=n=>Number(n||0).toLocaleString("es-CO");
+const fmtDate=s=>s?new Date(s+"T00:00:00").toLocaleDateString("es-CO",{day:"numeric",month:"short",year:"numeric"}):"";
+const fmtDT=iso=>new Date(iso).toLocaleString("es-CO",{day:"numeric",month:"short",hour:"2-digit",minute:"2-digit"});
+const relDays=d=>d===0?"Hoy":d===1?"Mañana":d===-1?"Ayer":d>0?`En ${d} días`:`Hace ${-d} días`;
+const fmtDur=s=>{s=Math.round(s);const h=Math.floor(s/3600),m=Math.floor(s%3600/60),x=s%60;return h?`${h} h ${pad(m)} min`:m?`${m} min ${pad(x)} s`:`${x} s`};
+const fmtDist=m=>m<1000?`${Math.round(m)} m`:`${(m/1000).toFixed(m<10000?2:1)} km`;
+const monthKey=s=>s.slice(0,7);
+const MONTHS=["ene","feb","mar","abr","may","jun","jul","ago","sep","oct","nov","dic"];
+const val=id=>{const e=document.getElementById(id);return e?e.value.trim():""};
+
+/* ============ Iconos (trazos) ============ */
+const P={
+home:'<path d="M3 11.5 12 4l9 7.5M5.5 10V20h13V10M10 20v-5h4v5"/>',
+gps:'<circle cx="12" cy="12" r="3.2"/><circle cx="12" cy="12" r="7.5"/><path d="M12 2.5v3M12 18.5v3M2.5 12h3M18.5 12h3"/>',
+wrench:'<path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/>',
+wallet:'<path d="M3 7.5A2.5 2.5 0 0 1 5.5 5H18v3M3 7.5V18a2 2 0 0 0 2 2h14a1.5 1.5 0 0 0 1.5-1.5v-9A1.5 1.5 0 0 0 19 8H5.5A2.5 2.5 0 0 1 3 5.5M16 14h2"/>',
+doc:'<path d="M6 3h8l4 4v14H6zM14 3v4h4M9 12h6M9 16h6"/>',
+gauge:'<path d="M4.5 17a8.5 8.5 0 1 1 15 0M12 15l4-5M12 15h.01"/>',
+book:'<path d="M4 5.5A2.5 2.5 0 0 1 6.5 3H20v15H6.5A2.5 2.5 0 0 0 4 20.5zM4 20.5A2.5 2.5 0 0 0 6.5 23H20v-5"/>',
+pin:'<path d="M12 21s7-6.2 7-11.5a7 7 0 1 0-14 0C5 14.800 12 21 12 21z"/><circle cx="12" cy="9.5" r="2.5"/>',
+route:'<circle cx="6" cy="18" r="2.2"/><circle cx="18" cy="6" r="2.2"/><path d="M8.2 18H15a3 3 0 0 0 0-6H9a3 3 0 0 1 0-6h6.8"/>',
+alert:'<path d="M12 3.5 22 20.500H2z"/><path d="M12 10v4.500M12 17.500v.01"/>',
+list:'<path d="M9 6h11M9 12h11M9 18h11M3.500 6l1.500 1.500L7.500 5M3.500 12l1.500 1.500L7.500 11M3.500 18l1.500 1.500L7.500 17"/>',
+parking:'<rect x="4" y="4" width="16" height="16" rx="4"/><path d="M10 16.500V7.500h3a2.500 2.500 0 0 1 0 5h-3"/>',
+car:'<path d="M5 17H4a1 1 0 0 1-1-1v-4l2.200-5.200A2 2 0 0 1 7 5.500h10a2 2 0 0 1 1.800 1.300L21 12v4a1 1 0 0 1-1 1h-1M3 12h18M9.500 17h5"/><circle cx="7.500" cy="17" r="2"/><circle cx="16.500" cy="17" r="2"/>',
+moto:'<circle cx="5.500" cy="16" r="3"/><circle cx="18.500" cy="16" r="3"/><path d="M5.500 16 9 9h5l2 3.500 2.500 3.500M9 9 8 6.500H6M14 9l1-2.500h2.500M10.500 16h3.500l1-3.500"/>',
+user:'<circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/>',
+sun:'<circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M2 12h2M20 12h2M4.900 4.900l1.400 1.400M17.700 17.700l1.400 1.400M4.900 19.100l1.400-1.400M17.700 6.300l1.400-1.400"/>',
+moon:'<path d="M20.500 13.500A8.500 8.500 0 1 1 10.500 3.500a7 7 0 0 0 10 10z"/>',
+plus:'<path d="M12 5v14M5 12h14"/>',check:'<path d="M5 12.500l4.500 4.500L19 7"/>',x:'<path d="M6 6l12 12M18 6 6 18"/>',
+chev:'<path d="M9 5.500l6.500 6.500L9 18.500"/>',back:'<path d="M15 5.500 8.500 12l6.500 6.500"/>',
+more:'<circle cx="5" cy="12" r="1.200"/><circle cx="12" cy="12" r="1.200"/><circle cx="19" cy="12" r="1.200"/>',
+bell:'<path d="M6 16.500V11a6 6 0 0 1 12 0v5.500l1.500 2h-15zM10 21h4"/>',
+dl:'<path d="M12 4v11M7 11l5 5 5-5M4 20h16"/>',ul:'<path d="M12 16V5M7 9l5-5 5 5M4 20h16"/>',
+eye:'<path d="M2 12s3.500-7 10-7 10 7 10 7-3.500 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/>',
+eyeoff:'<path d="M3 3l18 18M10.600 5.200A9.500 9.500 0 0 1 12 5c6.500 0 10 7 10 7a17 17 0 0 1-3 4M6.500 6.800A16 16 0 0 0 2 12s3.500 7 10 7a9.500 9.500 0 0 0 4-.9M9.900 9.900a3 3 0 0 0 4.200 4.200"/>',
+lock:'<rect x="4.500" y="10.500" width="15" height="10" rx="2.500"/><path d="M8 10.500V7.500a4 4 0 0 1 8 0v3"/>',
+mail:'<rect x="3" y="5" width="18" height="14" rx="3"/><path d="m3.500 7.500 8.500 6 8.500-6"/>',
+phone:'<path d="M5 4h4l2 5-2.500 1.500a11 11 0 0 0 5 5L15 13l5 2v4a2 2 0 0 1-2 2A16 16 0 0 1 3 6a2 2 0 0 1 2-2z"/>',
+fuel:'<path d="M5 21V5a2 2 0 0 1 2-2h6a2 2 0 0 1 2 2v16M4 21h12M15 9h2a2 2 0 0 1 2 2v5a1.500 1.500 0 0 0 3 0V8l-3-3M7.500 8h5"/>',
+tire:'<circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="3.500"/><path d="M12 3v5.500M12 15.500V21M3 12h5.500M15.500 12H21"/>',
+share:'<path d="M12 3v12M8 7l4-4 4 4M5 12v8h14v-8"/>',
+refresh:'<path d="M20 12a8 8 0 1 1-2.300-5.700M20 4v5h-5"/>',
+trash:'<path d="M4 7h16M9 7V4h6v3M6 7l1 13h10l1-13"/>',
+play:'<path d="M7 4.500 19 12 7 19.500z" style="fill:currentColor"/>',stop:'<rect x="6" y="6" width="12" height="12" rx="2" style="fill:currentColor"/>',
+edit:'<path d="M4 20h4L19 9l-4-4L4 16zM13.500 6.500l4 4"/>',
+bulb:'<path d="M9 18h6M10 21h4M12 3a6 6 0 0 0-4 10.500c.7.700 1 1.500 1 2.500h6c0-1 .3-1.800 1-2.500A6 6 0 0 0 12 3z"/>',
+chat:'<path d="M4 5h16v11H9l-5 4z"/>',
+shield:'<path d="M12 3l8 3v6c0 5-3.500 8-8 9-4.500-1-8-4-8-9V6z"/><path d="m9 12 2 2 4-4"/>',
+battery:'<rect x="3" y="7" width="16" height="10" rx="2.500"/><path d="M21 11v2M7 12h5"/>',
+engine:'<path d="M4 9h3l1-2h6l1 2h2v2h2v4h-2v2H7l-2-2v-2H3V9zM9 12h6"/>',
+info:'<circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 8v.01"/>',
+tow:'<path d="M3 16v-4l2-4h7v8M12 10h5l3 3v3M3 16h2M10 16h8M20 16h1"/><circle cx="7" cy="17" r="2"/><circle cx="17" cy="17" r="2"/>',
+flag:'<path d="M5 21V4M5 4h11l-2 4 2 4H5"/>',
+clock:'<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>',
+compass:'<circle cx="12" cy="12" r="9"/><path d="m15.500 8.500-2 5-5 2 2-5z"/>',
+sparkle:'<path d="M12 3l1.800 5.200L19 10l-5.200 1.800L12 17l-1.800-5.200L5 10l5.200-1.800z"/>',
+trophy:'<path d="M8 4h8v5a4 4 0 0 1-8 0zM8 6H5a2 2 0 0 0 2 4M16 6h3a2 2 0 0 1-2 4M12 13v4M8.500 20h7"/>'
+};
+const ic=(n,s=20)=>`<svg class="ic" width="${s}" height="${s}" viewBox="0 0 24 24" aria-hidden="true">${P[n]||""}</svg>`;
+
+/* ============ Almacenamiento ============ */
+let session=null, db=null, saveTimer=null;
+const LS={get(k){try{return localStorage.getItem(k)}catch{return null}},set(k,v){try{localStorage.setItem(k,v);return true}catch{return false}},del(k){try{localStorage.removeItem(k)}catch{}}};
+const dbKey=(email=session?.email)=>`ac_${email||"guest"}_db`;
+function readJSON(k,fb){try{const v=LS.get(k);return v?JSON.parse(v):fb}catch{return fb}}
+function persist(){ if(!session||!db) return; LS.set(dbKey(),JSON.stringify(db)); }
+function commit(rerender=true){ persist(); if(rerender) render(); }
+
+/* ============ Modelo de datos ============ */
+const VT={
+  car:{label:"Carro",icon:"car",maxSpeed:140,presets:[["Cambio de aceite y filtro",5000],["Filtro de aire",15000],["Rotación de llantas",10000],["Alineación y balanceo",10000],["Pastillas de freno",25000],["Bujías",30000],["Líquido de frenos",40000],["Refrigerante",40000],["Batería",50000],["Correa de repartición",60000]]},
+  moto:{label:"Moto",icon:"moto",maxSpeed:180,presets:[["Cambio de aceite",3000],["Lubricar cadena",500],["Kit de arrastre",15000],["Pastillas de freno",8000],["Filtro de aire",8000],["Bujía",8000],["Líquido de frenos",20000],["Llantas",15000],["Batería",30000]]}
+};
+const CATS={Combustible:"#ff6a2b",Mantenimiento:"#59b8ff",Repuestos:"#b58cff",Seguro:"#35d39a",Peajes:"#ffb627",Parqueadero:"#ff8fb1",Lavado:"#5ee0e8",Otro:"#8ea0ad"};
+const DOC_TYPES=["SOAT","Técnico-mecánica","Seguro todo riesgo","Impuesto vehicular","Licencia de conducción"];
+function newVehicle(o={}){return{id:uid(),type:"car",brand:"",model:"",year:new Date().getFullYear(),plate:"",km:0,fuel:"Gasolina",color:"",diag:{battery:82,tires:76,engine:91,scanned:null},...o}}
+function defaultGps(){return{mode:"sim",base:{lat:4.711,lng:-74.0721},baseSet:false,pos:{lat:4.711,lng:-74.0721,acc:8,ts:0},speed:0,heading:35,engineOn:false,battery:91,signal:"Buena",fence:500,limit:60,watch:false,trail:[],trips:[],alerts:[]}}
+function defaultEquipment(){return[["Kit antipinchazos",true],["Inflador portátil",true],["Cables de arranque",false],["Triángulos de señalización",true],["Chaleco reflectivo",true],["Linterna",false],["Botiquín",false],["Extintor",true]].map(([name,ok])=>({id:uid(),name,ok}))}
+function emptyDB(v){return{vehicles:[v],active:v.id,maintenance:[],expenses:[],documents:[],parking:null,emergencyHistory:[],gps:defaultGps(),equipment:defaultEquipment(),profile:{phone:"",contactName:"",contactPhone:"",budget:0},places:[],onboarded:false,dismissGuide:false}}
+function sampleDB(){
+  const v=newVehicle({brand:"Renault",model:"Duster",year:2021,plate:"ABC123",km:42000,color:"Gris"});
+  const d=emptyDB(v), vid=v.id, t=todayStr();
+  d.onboarded=true;
+  d.maintenance=[
+    {id:uid(),vid,title:"Cambio de aceite y filtro",km:42800,date:addDays(27),cost:180000,workshop:"Taller de confianza",done:false,interval:5000},
+    {id:uid(),vid,title:"Revisión de frenos",km:45000,date:addDays(73),cost:120000,workshop:"",done:false,interval:0},
+    {id:uid(),vid,title:"Rotación de llantas",km:42300,date:"",cost:60000,workshop:"",done:false,interval:10000},
+    {id:uid(),vid,title:"Cambio de aceite y filtro",km:37800,date:addDays(-140),cost:175000,workshop:"Taller de confianza",done:true,interval:5000}];
+  const ex=[[-3,"Combustible",92000,"Tanqueo",8,41800],[-13,"Mantenimiento",180000,"Aceite y filtro"],[-8,"Seguro",30000,"Pago parcial"],[-20,"Combustible",88000,"Tanqueo",7.6,41525],[-33,"Peajes",24000,"Ruta Bogotá–Girardot"],
+    [-41,"Combustible",95000,"Tanqueo",8.2,41250],[-58,"Lavado",35000,"Lavado completo"],[-66,"Combustible",90000,"Tanqueo",7.9,40975],[-88,"Repuestos",145000,"Escobillas y filtro cabina"],[-97,"Combustible",86000,"Tanqueo",7.4,40700],[-125,"Seguro",210000,"Cuota póliza"],[-150,"Combustible",91000,"Tanqueo",7.7,40425]];
+  d.expenses=ex.map(([o,cat,amount,note,qty,odo])=>({id:uid(),vid,date:addDays(o),cat,amount,note,qty:qty||0,odo:odo||0}));
+  d.documents=[{id:uid(),vid,name:"SOAT",date:addDays(22),note:""},{id:uid(),vid,name:"Técnico-mecánica",date:addDays(78),note:""},{id:uid(),vid,name:"Seguro todo riesgo",date:addDays(180),note:""}];
+  d.profile={phone:"",contactName:"",contactPhone:"",budget:450000};
+  d.places=[{id:uid(),name:"Casa",addr:"Chía, Cundinamarca"},{id:uid(),name:"Trabajo",addr:"Calle 100, Bogotá"}];
+  return d;
+}
+function ensureDb(d){
+  const g=defaultGps();
+  if(!Array.isArray(d.vehicles)||!d.vehicles.length) d.vehicles=[newVehicle()];
+  d.vehicles.forEach((v,i)=>{ v.type=v.type||(/moto|🏍/i.test((v.emoji||"")+v.type)?"moto":"car"); v.diag=v.diag||(i===0&&d.diagnostic)||{battery:82,tires:76,engine:91,scanned:null}; v.diag.scanned=v.diag.scanned||null; v.km=Number(v.km)||0; v.id=v.id||uid(); delete v.emoji });
+  delete d.diagnostic;
+  if(!d.active||!d.vehicles.find(v=>v.id===d.active)) d.active=d.vehicles[0].id;
+  const first=d.vehicles[0].id;
+  ["maintenance","expenses","documents","emergencyHistory","places"].forEach(k=>{if(!Array.isArray(d[k]))d[k]=[]});
+  d.maintenance.forEach(m=>{m.vid=m.vid||first;m.done=!!m.done;m.id=m.id||uid();m.interval=m.interval||0;m.date=m.date||"";m.cost=Number(m.cost)||0});
+  d.expenses.forEach(e=>{e.vid=e.vid||first;e.id=e.id||uid();e.qty=e.qty||0;e.odo=e.odo||0});
+  d.documents.forEach(x=>{x.vid=x.vid||first;x.id=x.id||uid();x.note=x.note||""});
+  if(!d.gps||!d.gps.base||d.gps.x!==undefined) d.gps=g; else d.gps={...g,...d.gps};
+  ["trail","trips","alerts"].forEach(k=>{if(!Array.isArray(d.gps[k]))d.gps[k]=[]});
+  d.gps.trips.forEach(t=>{t.id=t.id||uid()});
+  if(!Array.isArray(d.equipment)||!d.equipment.length) d.equipment=defaultEquipment();
+  d.equipment=d.equipment.map(x=>Array.isArray(x)?{id:uid(),name:x[0],ok:!!x[1]}:x);
+  d.profile={phone:"",contactName:"",contactPhone:"",budget:0,...(d.profile||{})};
+  if(d.parking&&!d.parking.ts&&!d.parking.place&&!d.parking.lat) d.parking=null;
+  if(d.parking&&d.parking.time&&!d.parking.ts) d.parking={place:d.parking.place,note:"",ts:new Date().toISOString(),lat:null,lng:null};
+  if(d.onboarded===undefined) d.onboarded=!!d.vehicles[0].brand;
+  return d;
+}
+
+/* ============ Selectores y cálculos ============ */
+const V=()=>db.vehicles.find(v=>v.id===db.active)||db.vehicles[0];
+const mine=k=>db[k].filter(x=>x.vid===V().id);
+const vName=v=>[v.brand,v.model].filter(Boolean).join(" ")||"Mi vehículo";
+function mStatus(m){const v=V(),rem=m.km-v.km,dd=m.date?daysUntil(m.date):null;let lvl="ok";
+  if(rem<0||(dd!==null&&dd<0))lvl="over";else if(rem<=500||(dd!==null&&dd<=15))lvl="soon";return{rem,dd,lvl}}
+function docLvl(dd){return dd<0?"bad":dd<=30?"warn":"ok"}
+function health(){
+  const v=V(),d=v.diag,docs=mine("documents"),pend=mine("maintenance").filter(m=>!m.done);
+  const docS=docs.length?avg(docs.map(x=>{const dd=daysUntil(x.date);return dd<0?0:dd<15?40:dd<30?70:100})):100;
+  const over=pend.filter(m=>mStatus(m).lvl==="over").length,soon=pend.filter(m=>mStatus(m).lvl==="soon").length;
+  const mS=clamp(100-over*30-soon*10,0,100);
+  const parts=[["Batería",d.battery],["Llantas",d.tires],["Motor",d.engine],["Documentos",Math.round(docS)],["Mantenimiento",mS]];
+  return{score:Math.round(avg(parts.map(p=>p[1]))),parts};
+}
+const lvlColor=s=>s>=75?"ok":s>=50?"warn":"bad";
+function attention(){
+  const out=[],v=V();
+  mine("documents").forEach(x=>{const dd=daysUntil(x.date);
+    if(dd<0)out.push({o:0,lvl:"bad",icon:"doc",t:`${x.name} vencido`,s:`Venció ${relDays(dd).toLowerCase()} · ${fmtDate(x.date)}`,go:"documents"});
+    else if(dd<=30)out.push({o:dd<=7?1:2,lvl:dd<=7?"bad":"warn",icon:"doc",t:`${x.name} vence pronto`,s:`${relDays(dd)} · ${fmtDate(x.date)}`,go:"documents"})});
+  mine("maintenance").filter(m=>!m.done).forEach(m=>{const s=mStatus(m);
+    if(s.lvl==="over")out.push({o:1,lvl:"bad",icon:"wrench",t:`${m.title} atrasado`,s:s.rem<0?`Te pasaste ${nf(-s.rem)} km`:"Fecha vencida",go:"maintenance"});
+    else if(s.lvl==="soon")out.push({o:3,lvl:"warn",icon:"wrench",t:`${m.title} próximo`,s:s.rem<=500?`Faltan ${nf(Math.max(0,s.rem))} km`:`En ${s.dd} días`,go:"maintenance"})});
+  const un=db.gps.alerts.filter(a=>!a.seen).length;
+  if(un)out.push({o:2,lvl:"warn",icon:"gps",t:`${un} alerta${un>1?"s":""} de GPS sin revisar`,s:"Toca para ver el detalle",go:"gps"});
+  const miss=db.equipment.filter(e=>!e.ok).length;
+  if(miss)out.push({o:5,lvl:"info",icon:"list",t:`Te faltan ${miss} elementos de emergencia`,s:"Revisa tu checklist antes de viajar",go:"equipment"});
+  if(!v.plate)out.push({o:6,lvl:"info",icon:"car",t:"Agrega la placa de tu vehículo",s:"Completa la ficha para tener todo en un lugar",go:"vehicles"});
+  return out.sort((a,b)=>a.o-b.o);
+}
+function monthSpend(offset=0){const d=new Date();d.setMonth(d.getMonth()-offset,1);const k=`${d.getFullYear()}-${pad(d.getMonth()+1)}`;return mine("expenses").filter(e=>monthKey(e.date)===k).reduce((a,e)=>a+e.amount,0)}
+function fuelEff(){const f=mine("expenses").filter(e=>e.cat==="Combustible"&&e.qty>0&&e.odo>0).sort((a,b)=>a.odo-b.odo),r=[];
+  for(let i=1;i<f.length;i++){const km=f[i].odo-f[i-1].odo;if(km>0)r.push(km/f[i].qty)}return r.length?avg(r):null}
+const TIPS=[
+ ["Presión de llantas","Revísala en frío, al menos una vez al mes. El valor correcto está en la etiqueta de la puerta del conductor, no en la llanta."],
+ ["El aceite no espera","Cambia el aceite por kilometraje o por tiempo, lo que ocurra primero. Un aceite viejo pierde capacidad de proteger el motor aunque uses poco el vehículo."],
+ ["Escucha tus frenos","Un chillido agudo al frenar suele avisar que las pastillas están en el límite. Revísalas antes de que toquen el disco."],
+ ["Cuida la batería","Los viajes muy cortos no dejan que la batería se recargue bien. Un recorrido largo de vez en cuando ayuda a mantenerla."],
+ ["Mira el tablero al arrancar","Al girar la llave todas las luces se encienden y luego se apagan. Si una se queda prendida, consulta la guía de luces."],
+ ["Suave se ahorra más","Acelerar y frenar con suavidad puede reducir el consumo de combustible de forma notable."],
+ ["Guarda copias de tus documentos","Toma una foto del SOAT, la tarjeta de propiedad y la licencia. Te evita problemas si los pierdes."],
+ ["Revisa niveles con el motor frío","Aceite, refrigerante y líquido de frenos se miden mejor en frío y sobre superficie plana."],
+ ["Alineación y balanceo","Si el carro se desvía o el volante vibra, puede ser alineación o balanceo. Además, evita que las llantas se desgasten desigual."],
+ ["Distancia de seguridad","Mantén al menos tres segundos de distancia con el vehículo de adelante, más si llueve."],
+ ["Tensión de la cadena","En moto, una cadena seca o floja se desgasta rápido. Lúbricala cada pocos cientos de kilómetros."],
+ ["Lleva tu kit de carretera","Triángulos, chaleco reflectivo, linterna y cables de arranque pesan poco y pueden sacarte de un apuro."]
+];
+const tipOfDay=()=>{const d=new Date(),n=Math.floor((d-new Date(d.getFullYear(),0,0))/864e5);return TIPS[n%TIPS.length]};
+
+/* ============ Indicador circular (reloj de tablero) ============ */
+const G_R=78, G_L=G_R*Math.PI*1.5;
+const gPt=(deg,r)=>{const a=deg*Math.PI/180;return[(100+r*Math.cos(a)).toFixed(2),(100+r*Math.sin(a)).toFixed(2)]};
+function gaugeSVG(id,value,max,{unit="",label="",color="var(--ok)",needle=false,ticks=27,size=""}={}){
+  const f=clamp(value/max,0,1),s=gPt(135,G_R),e=gPt(45,G_R);let t="";
+  for(let i=0;i<=ticks;i++){const a=135+270*i/ticks,big=i%3===0,p1=gPt(a,big?90:92),p2=gPt(a,98);t+=`<line class="tick" x1="${p1[0]}" y1="${p1[1]}" x2="${p2[0]}" y2="${p2[1]}"/>`}
+  const path=`M${s[0]} ${s[1]} A${G_R} ${G_R} 0 1 1 ${e[0]} ${e[1]}`;
+  return `<svg class="gv ${size}" viewBox="0 0 200 ${needle?186:178}" role="img" aria-label="${esc(label)} ${value}${unit}">${t}
+  <path class="trk" d="${path}"/>
+  <path class="val" id="${id}-v" d="${path}" stroke="${color}" stroke-dasharray="${G_L.toFixed(1)}" stroke-dashoffset="${(G_L*(1-f)).toFixed(1)}"/>
+  ${needle?`<g class="needle" id="${id}-n" style="transform:rotate(${135+270*f}deg);transform-origin:100px 100px"><path d="M100 100 L100 96.5 L168 100 L100 103.5Z" fill="var(--brand)"/><circle cx="100" cy="100" r="7" fill="var(--brand)"/><circle cx="100" cy="100" r="2.6" fill="#0c141b"/></g>`:""}
+  <text id="${id}-t" x="100" y="${needle?144:106}" text-anchor="middle" font-size="${needle?40:46}" font-weight="800">${Math.round(value)}</text>
+  <text class="lbl" x="100" y="${needle?162:126}" text-anchor="middle" font-size="12.5">${esc(unit||label)}</text>
+  ${unit&&label?`<text class="lbl" x="100" y="${needle?178:144}" text-anchor="middle" font-size="11">${esc(label)}</text>`:""}</svg>`;
+}
+function setGauge(id,value,max,color){
+  const f=clamp(value/max,0,1),v=$("#"+id+"-v"),n=$("#"+id+"-n"),t=$("#"+id+"-t");
+  if(v){v.style.strokeDashoffset=(G_L*(1-f)).toFixed(1);if(color)v.setAttribute("stroke",color)}
+  if(n)n.style.transform=`rotate(${135+270*f}deg)`; if(t)t.textContent=Math.round(value);
+}
+let heroTimer=null; const stopHero=()=>{clearInterval(heroTimer);heroTimer=null};
+
+/* ============ Motor GPS (simulado o del teléfono) ============ */
+const GPS={timer:null,watch:null,trip:null,sim:1,target:30,inFence:true,cool:{},err:"",lock:null};
+const M_LAT=110540, mLng=lat=>111320*Math.cos(lat*Math.PI/180);
+const toM=p=>{const b=db.gps.base;return{x:(p.lng-b.lng)*mLng(b.lat),y:(p.lat-b.lat)*M_LAT}};
+function hav(a,b){const R=6371000,r=Math.PI/180,dLa=(b.lat-a.lat)*r,dLo=(b.lng-a.lng)*r,x=Math.sin(dLa/2)**2+Math.cos(a.lat*r)*Math.cos(b.lat*r)*Math.sin(dLo/2)**2;return 2*R*Math.asin(Math.sqrt(x))}
+function bearing(a,b){const r=Math.PI/180,y=Math.sin((b.lng-a.lng)*r)*Math.cos(b.lat*r),x=Math.cos(a.lat*r)*Math.sin(b.lat*r)-Math.sin(a.lat*r)*Math.cos(b.lat*r)*Math.cos((b.lng-a.lng)*r);return(Math.atan2(y,x)/r+360)%360}
+const tracking=()=>GPS.timer!==null||GPS.watch!==null;
+const cardinal=h=>["N","NE","E","SE","S","SO","O","NO"][Math.round(h/45)%8];
+function addAlert(msg,level){
+  const g=db.gps;g.alerts.push({id:uid(),msg,level,date:new Date().toISOString(),seen:false});if(g.alerts.length>40)g.alerts.shift();
+  persist();toast(msg,{bad:level==="bad"});try{navigator.vibrate&&navigator.vibrate(level==="bad"?[200,100,200]:100)}catch{}
+  drawTopbar();paintAlerts();
+}
+function alertOnce(k,msg,level,cool){const n=Date.now();if(n-(GPS.cool[k]||0)<cool)return;GPS.cool[k]=n;addAlert(msg,level)}
+function processPos(pos){
+  const g=db.gps,last=g.pos;let moved=0;
+  if(last&&last.ts)moved=hav(last,pos);
+  g.pos=pos;
+  const tl=g.trail[g.trail.length-1];
+  if(!tl||hav(tl,pos)>4){g.trail.push({lat:pos.lat,lng:pos.lng});if(g.trail.length>500)g.trail.shift()}
+  if(GPS.trip){const t=GPS.trip;t.dist+=moved;t.max=Math.max(t.max,g.speed);}
+  const inside=hav(g.base,pos)<=g.fence;
+  if(!inside&&GPS.inFence)addAlert("Salió de la zona segura","bad");
+  if(inside&&!GPS.inFence)addAlert("Volvió a la zona segura","ok");
+  GPS.inFence=inside;
+  if(g.speed>g.limit)alertOnce("spd",`Exceso de velocidad: ${Math.round(g.speed)} km/h (límite ${g.limit})`,"warn",20000);
+  if(g.battery<=15)alertOnce("bat","Batería del rastreador baja","warn",600000);
+  if(g.watch&&!g.engineOn&&GPS.lock&&hav(GPS.lock,pos)>30)alertOnce("theft","Se está moviendo con el motor apagado: posible remolque o robo","bad",60000);
+  paintGps();
+}
+function simTick(){
+  const g=db.gps,dt=GPS.sim;
+  if(g.engineOn){
+    if(Math.random()<.07)GPS.target=Math.random()<.16?rnd(g.limit*1.05,g.limit*1.3):rnd(0,g.limit*.95);
+    g.speed=Math.max(0,g.speed+clamp(GPS.target-g.speed,-9,6));
+    g.heading=(g.heading+rnd(-14,14)+360)%360;if(Math.random()<.015)g.heading=(g.heading+rnd(-80,80)+360)%360;
+  }else g.speed=Math.max(0,g.speed-12);
+  const d=g.speed/3.6*dt,h=g.heading*Math.PI/180,p=g.pos;
+  if(Math.random()<.02*dt)g.battery=Math.max(3,g.battery-1);
+  g.signal=g.battery<20?"Débil":"Buena";
+  if(GPS.trip)GPS.trip.sec+=dt;
+  processPos({lat:p.lat+d*Math.cos(h)/M_LAT,lng:p.lng+d*Math.sin(h)/mLng(p.lat),acc:6+Math.random()*6,ts:Date.now()});
+}
+function onFix(p){
+  const g=db.gps,c=p.coords,pos={lat:c.latitude,lng:c.longitude,acc:c.accuracy||0,ts:Date.now()},last=g.pos;GPS.err="";
+  if(!g.baseSet){g.base={lat:pos.lat,lng:pos.lng};g.baseSet=true;g.trail=[]}
+  let sp=(c.speed!=null&&!isNaN(c.speed))?c.speed*3.6:0;
+  if((c.speed==null||isNaN(c.speed))&&last&&last.ts&&last.lat!==undefined&&g.baseSet){const dt=(pos.ts-last.ts)/1000;if(dt>0&&dt<30)sp=hav(last,pos)/dt*3.6}
+  g.speed=sp<1?0:sp;
+  if(c.heading!=null&&!isNaN(c.heading)&&sp>2)g.heading=c.heading;else if(last&&last.ts&&hav(last,pos)>3)g.heading=bearing(last,pos);
+  g.engineOn=g.speed>4;g.signal=pos.acc<25?"Buena":pos.acc<80?"Media":"Débil";
+  if(GPS.trip)GPS.trip.sec=(Date.now()-GPS.trip.start)/1000;
+  if(!last||!last.ts)GPS.inFence=hav(g.base,pos)<=g.fence;
+  processPos(pos);
+}
+function onFixErr(e){
+  GPS.err=e.code===1?"Permiso de ubicación denegado. Actívalo en el navegador o usa el modo simulado.":e.code===2?"No se pudo obtener la ubicación. Revisa que el GPS esté encendido.":"La ubicación tardó demasiado. Intenta de nuevo al aire libre.";
+  stopTrack(false);toast(GPS.err,{bad:true});render();
+}
+function startTrack(){
+  const g=db.gps;if(tracking())return;GPS.err="";
+  GPS.trip={start:Date.now(),dist:0,max:0,sec:0};GPS.inFence=hav(g.base,g.pos||g.base)<=g.fence;g.trail=[];
+  if(g.mode==="sim"){
+    g.engineOn=true;GPS.target=25;if(g.pos.lat===undefined)g.pos={...g.base,acc:8,ts:0};
+    g.trail.push({lat:g.pos.lat,lng:g.pos.lng});GPS.timer=setInterval(simTick,1000);
+  }else{
+    if(!navigator.geolocation){GPS.err="Tu navegador no ofrece geolocalización. Usa el modo simulado.";toast(GPS.err,{bad:true});GPS.trip=null;render();return}
+    GPS.watch=navigator.geolocation.watchPosition(onFix,onFixErr,{enableHighAccuracy:true,maximumAge:2000,timeout:20000});
+    toast("Buscando señal GPS…");
+  }
+  persist();render();
+}
+function stopTrack(save=true){
+  const g=db.gps;clearInterval(GPS.timer);GPS.timer=null;
+  if(GPS.watch!==null){navigator.geolocation.clearWatch(GPS.watch);GPS.watch=null}
+  const t=GPS.trip;GPS.trip=null;
+  if(g.mode==="sim"){g.engineOn=false}
+  g.speed=0;
+  if(save&&t){
+    if(t.dist>=20){const avgV=t.sec>0?t.dist/t.sec*3.6:0;g.trips.push({id:uid(),vid:V().id,date:new Date().toISOString(),dist:t.dist,sec:t.sec,max:t.max,avg:avgV});
+      const v=V();v.km=Math.round(v.km+t.dist/1000);toast(`Recorrido guardado: ${fmtDist(t.dist)}`)}
+    else toast("Recorrido muy corto, no se guardó")
+  }
+  GPS.lock=g.pos?{...g.pos}:null;persist();render();
+}
+function setGpsMode(m){if(tracking())stopTrack(false);const g=db.gps;g.mode=m;GPS.err="";
+  if(m==="real"){g.pos=g.baseSet?g.pos:{lat:g.base.lat,lng:g.base.lng,acc:0,ts:0};g.baseSet=false;g.trail=[]}
+  else{g.baseSet=false;g.base={lat:4.711,lng:-74.0721};g.pos={...g.base,acc:8,ts:0};g.trail=[]}
+  g.speed=0;GPS.lock=null;commit()}
+function paintGps(){
+  if(route()!=="gps"||!$("#gpsLive"))return;
+  const g=db.gps,v=V(),mx=VT[v.type].maxSpeed,sp=Math.round(g.speed);
+  setGauge("spd",sp,mx,sp>g.limit?"var(--bad)":"var(--ok)");
+  const m=$("#mapInner");if(m)m.innerHTML=mapInner();
+  const set=(id,t)=>{const e=$("#"+id);if(e)e.textContent=t};
+  const t=GPS.trip;
+  set("kvHead",g.pos&&g.pos.ts?`${Math.round(g.heading)}° ${cardinal(g.heading)}`:"—");
+  set("kvAcc",g.pos&&g.pos.ts?`±${Math.round(g.pos.acc)} m`:"—");
+  set("kvDist",t?fmtDist(t.dist):"0 m");set("kvTime",t?fmtDur(t.sec):"0 s");
+  set("kvDown",g.pos?fmtDist(hav(g.base,g.pos)):"—");set("kvMax",t?`${Math.round(t.max)} km/h`:"—");
+  set("kvBat",`${g.battery}%`);set("kvSig",g.signal);
+  const c=$("#coords");if(c)c.textContent=g.pos&&g.pos.lat!==undefined?`${g.pos.lat.toFixed(5)}, ${g.pos.lng.toFixed(5)}`:"Sin señal";
+  const st=$("#gpsState");if(st){st.className="pill "+(tracking()?(g.engineOn?"ok":"warn"):"");st.textContent=tracking()?(g.engineOn?"En movimiento":"Detenido"):"Sin seguimiento"}
+}
+function paintAlerts(){const e=$("#gpsAlerts");if(e)e.innerHTML=alertsHTML()}
+function mapInner(){
+  const g=db.gps,W=640,H=400,cx=W/2,cy=H/2,live=g.pos&&(g.pos.ts||g.mode==="sim");
+  const pts=g.trail.map(toM),cur=live&&g.pos?toM(g.pos):{x:0,y:0};
+  let R=Math.max(g.fence*1.3,120);[...pts,cur].forEach(p=>{R=Math.max(R,Math.hypot(p.x,p.y)*1.18)});
+  const sc=(H/2-24)/R,X=p=>(cx+p.x*sc).toFixed(1),Y=p=>(cy-p.y*sc).toFixed(1);
+  const step=[25,50,100,200,250,500,1000,2000,5000,10000,20000,50000].find(s=>R/s<=4)||100000;
+  let o=`<line x1="0" y1="${cy}" x2="${W}" y2="${cy}" stroke="#1d2d39"/><line x1="${cx}" y1="0" x2="${cx}" y2="${H}" stroke="#1d2d39"/>`;
+  for(let r=step;r<=R*1.6;r+=step){o+=`<circle cx="${cx}" cy="${cy}" r="${(r*sc).toFixed(1)}" fill="none" stroke="#1d2d39"/>`;if(r*sc<H/2-6)o+=`<text x="${cx+4}" y="${(cy-r*sc-4).toFixed(1)}" fill="#5f7686" font-size="11">${fmtDist(r)}</text>`}
+  o+=`<circle cx="${cx}" cy="${cy}" r="${(g.fence*sc).toFixed(1)}" fill="rgba(255,106,43,.07)" stroke="#ff6a2b" stroke-width="2" stroke-dasharray="7 6"/>`;
+  o+=`<g transform="translate(${cx} ${cy})"><rect x="-6" y="-6" width="12" height="12" rx="3" fill="#0c141b" stroke="#ff6a2b" stroke-width="2"/></g><text x="${cx+11}" y="${cy+16}" fill="#ff9a6b" font-size="11.5">Base</text>`;
+  if(pts.length>1)o+=`<polyline fill="none" stroke="#35d39a" stroke-width="3" stroke-linejoin="round" stroke-linecap="round" opacity=".85" points="${pts.map(p=>X(p)+","+Y(p)).join(" ")}"/>`;
+  const out=live&&hav(g.base,g.pos)>g.fence,col=out?"#ff5470":(g.engineOn?"#35d39a":"#8ea0ad");
+  if(live)o+=`<g transform="translate(${X(cur)} ${Y(cur)})"><circle r="9" fill="${col}" opacity=".5" class="pulse"/><g transform="rotate(${g.heading.toFixed(0)})"><path d="M0-15 8 8 0 4-8 8Z" fill="${col}" stroke="#0c141b" stroke-width="2" stroke-linejoin="round"/></g></g>`;
+  else o+=`<text x="${cx}" y="${cy+50}" fill="#8ea0ad" font-size="14" text-anchor="middle">Esperando señal GPS…</text>`;
+  o+=`<g transform="translate(${W-30} 30)"><circle r="15" fill="#0c141b" stroke="#2a3d4b"/><path d="M0-9 4 3 0 1-4 3Z" fill="#eaf1f5"/><text y="24" fill="#8ea0ad" font-size="10" text-anchor="middle">N</text></g>`;
+  return o;
+}
+function alertsHTML(){
+  const a=db.gps.alerts.slice().reverse().slice(0,8);
+  return a.length?a.map(x=>`<div class="item"><span class="dot ${x.level}"></span><div class="grow"><div class="t">${esc(x.msg)}</div><div class="s">${fmtDT(x.date)}</div></div>${x.seen?"":'<span class="pill brand">Nueva</span>'}</div>`).join(""):`<div class="empty"><b>Sin alertas</b>Te avisaremos si sales de la zona segura, superas el límite o hay movimiento sin motor.</div>`;
+}
+
+/* ============ Sesión y autenticación (demostración local) ============ */
+const getUsers=()=>readJSON("ac_users",{}), setUsers=u=>LS.set("ac_users",JSON.stringify(u));
+async function sha(pass,salt){try{const b=new TextEncoder().encode(salt+":"+pass),h=await crypto.subtle.digest("SHA-256",b);return[...new Uint8Array(h)].map(x=>x.toString(16).padStart(2,"0")).join("")}catch{let h=5381;for(const c of salt+pass)h=((h<<5)+h+c.charCodeAt(0))|0;return"x"+h}}
+const newSalt=()=>{try{return[...crypto.getRandomValues(new Uint8Array(8))].map(x=>x.toString(16).padStart(2,"0")).join("")}catch{return uid()}};
+function setSession(s,remember){session=s;const j=JSON.stringify(s);LS.del("ac_session");try{sessionStorage.removeItem("ac_session")}catch{}
+  if(remember)LS.set("ac_session",j);else try{sessionStorage.setItem("ac_session",j)}catch{LS.set("ac_session",j)}}
+function readSession(){try{const a=sessionStorage.getItem("ac_session");if(a)return JSON.parse(a)}catch{}return readJSON("ac_session",null)}
+function loadUserDb(fresh){const raw=readJSON(dbKey(),null);db=raw?ensureDb(raw):(fresh||emptyDB(newVehicle()));persist()}
+const strength=p=>{let s=0;if(p.length>=8)s++;if(/[A-Z]/.test(p)&&/[a-z]/.test(p))s++;if(/\d/.test(p))s++;if(/[^A-Za-z0-9]/.test(p)||p.length>=12)s++;return p?Math.max(1,s):0};
+let fails=0,lockUntil=0;
+function ferr(id,msg){const e=$("#"+id+"Err"),i=$("#"+id);if(e)e.textContent=msg||"";if(i)i.classList.toggle("err",!!msg);return!msg}
+function togglePass(id,btn){const i=$("#"+id),show=i.type==="password";i.type=show?"text":"password";btn.innerHTML=ic(show?"eyeoff":"eye");btn.setAttribute("aria-label",show?"Ocultar contraseña":"Mostrar contraseña")}
+function passStrengthPaint(){const s=strength($("#aPass").value),c=["","var(--bad)","var(--warn)","var(--info)","var(--ok)"][s];$$("#aStr i").forEach((b,i)=>b.style.background=i<s?c:"");const l=$("#aStrL");if(l)l.textContent=["","Débil","Regular","Buena","Fuerte"][s]||""}
+async function submitAuth(kind){
+  const btn=$("#aBtn"),email=val("aEmail").toLowerCase(),pass=$("#aPass")?$("#aPass").value:"",name=val("aName");
+  let ok=true;
+  ok=ferr("aEmail",!email?"Escribe tu correo.":!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email)?"Revisa el formato del correo.":"")&&ok;
+  if(kind==="register")ok=ferr("aName",!name?"Escribe tu nombre.":"")&&ok;
+  ok=ferr("aPass",!pass?"Escribe tu contraseña.":pass.length<6?"Usa al menos 6 caracteres.":"")&&ok;
+  if(!ok)return;
+  if(Date.now()<lockUntil){ferr("aPass",`Demasiados intentos. Espera ${Math.ceil((lockUntil-Date.now())/1000)} s.`);return}
+  btn.disabled=true;btn.textContent="Verificando…";
+  const users=getUsers(),remember=$("#aRemember")?$("#aRemember").checked:true;
+  try{
+    if(kind==="register"){
+      if(users[email]){ferr("aEmail","Ese correo ya tiene una cuenta. Inicia sesión.");return}
+      const salt=newSalt();users[email]={name,salt,hash:await sha(pass,salt),created:todayStr()};setUsers(users);
+      setSession({email,name},remember);loadUserDb(null);toast(`Cuenta creada. Bienvenido, ${name.split(" ")[0]}`);nav("onboarding");
+    }else{
+      const u=users[email];let good=false;
+      if(u){ if(u.hash)good=(await sha(pass,u.salt))===u.hash; else if(u.pass!==undefined&&u.pass===pass){good=true;u.salt=newSalt();u.hash=await sha(pass,u.salt);delete u.pass;setUsers(users)} }
+      if(!good){fails++;if(fails>=5){lockUntil=Date.now()+30000;fails=0}ferr("aPass","Correo o contraseña incorrectos.");return}
+      fails=0;setSession({email,name:u.name},remember);loadUserDb(null);toast(`Hola de nuevo, ${u.name.split(" ")[0]}`);nav("home");
+    }
+  }finally{const b=$("#aBtn");if(b){b.disabled=false;b.textContent=kind==="register"?"Crear cuenta":"Iniciar sesión"}}
+}
+async function submitForgot(){
+  const email=val("aEmail").toLowerCase(),pass=$("#aPass").value,users=getUsers();
+  let ok=ferr("aEmail",!users[email]?"No encontramos una cuenta con ese correo.":"");
+  ok=ferr("aPass",pass.length<6?"Usa al menos 6 caracteres.":"")&&ok;if(!ok)return;
+  const salt=newSalt();users[email].salt=salt;users[email].hash=await sha(pass,salt);delete users[email].pass;setUsers(users);
+  toast("Contraseña actualizada. Ya puedes iniciar sesión");nav("login");
+}
+function demoLogin(){
+  setSession({email:"demo@autocontigo.app",name:"Conductor demo",demo:true},false);
+  const raw=readJSON(dbKey(),null);db=raw?ensureDb(raw):sampleDB();persist();toast("Modo demo con datos de ejemplo");nav("home");
+}
+function logout(){if(tracking())stopTrack(false);persist();LS.del("ac_session");try{sessionStorage.removeItem("ac_session")}catch{}session=null;db=null;toast("Sesión cerrada");nav("");}
+
+/* ============ Hoja modal, avisos y confirmaciones ============ */
+let lastFocus=null;
+function sheet(title,html,after){lastFocus=document.activeElement;$("#sheetTitle").textContent=title;$("#sheetBody").innerHTML=html;$("#sheetX").innerHTML=ic("x");$("#sheet").classList.add("open");
+  if(after)after();setTimeout(()=>{const f=$("#sheetBody input:not([type=checkbox]),#sheetBody select,#sheetBody button");f&&f.focus()},60)}
+function closeSheet(){$("#sheet").classList.remove("open");lastFocus&&lastFocus.focus&&lastFocus.focus()}
+document.addEventListener("keydown",e=>{if(e.key==="Escape")closeSheet()});
+function confirmSheet(title,msg,label,fn,danger=true){
+  window.__conf=()=>{closeSheet();fn()};
+  sheet(title,`<p class="mut">${msg}</p><div class="row-flex" style="justify-content:flex-end;margin-top:20px"><button class="btn soft" onclick="closeSheet()">Cancelar</button><button class="btn ${danger?"bad":"primary"}" onclick="__conf()">${label}</button></div>`);
+}
+let toastT=null,undoFn=null;
+function toast(msg,{undo=null,bad=false}={}){
+  const t=$("#toast");undoFn=undo;t.className="toast show"+(bad?" bad":"");t.innerHTML=`<span>${esc(msg)}</span>${undo?'<button onclick="doUndo()">Deshacer</button>':""}`;
+  clearTimeout(toastT);toastT=setTimeout(()=>t.classList.remove("show"),undo?5500:3200);
+}
+function doUndo(){if(undoFn){undoFn();undoFn=null;$("#toast").classList.remove("show")}}
+function removeItem(coll,id,label){
+  const i=db[coll].findIndex(x=>x.id===id);if(i<0)return;const [it]=db[coll].splice(i,1);
+  commit();toast(`${label} eliminado`,{undo:()=>{db[coll].splice(i,0,it);commit()}});
+}
+
+/* ============ Rutas y estructura de la app ============ */
+const route=()=>(location.hash||"").replace(/^#\/?/,"");
+function nav(r){const h="#"+r;if(location.hash===h||(!r&&!location.hash))render();else location.hash=h}
+const NAV=[["home","Inicio","home"],["gps","GPS en vivo","gps"],["maintenance","Mantenimiento","wrench"],["expenses","Gastos","wallet"],["documents","Documentos","doc"],["diagnostic","Diagnóstico","gauge"],["learn","Aprende","book"]];
+const NAV2=[["nearby","Cerca de mí","pin"],["routes","Rutas","route"],["equipment","Equipamiento","list"],["parking","Estacionamiento","parking"],["vehicles","Mis vehículos","car"],["profile","Perfil y datos","user"]];
+const TABS=[["home","Inicio","home"],["gps","GPS","gps"],["maintenance","Cuidados","wrench"],["expenses","Gastos","wallet"],["more","Más","more"]];
+const tabFor=r=>["home","gps","maintenance","expenses"].includes(r)?r:"more";
+let lastRoute=null;
+function showPub(){$("#pub").classList.remove("hidden");$("#shell").classList.add("hidden")}
+function showShell(){$("#pub").classList.add("hidden");$("#shell").classList.remove("hidden")}
+function drawSide(r){
+  const it=([id,l,i])=>`<a href="#${id}" class="${r===id?"on":""}">${ic(i)}${l}</a>`;
+  $("#side").innerHTML=`<button class="brand" onclick="nav('home')"><span class="mk">${ic("shield",19)}</span><span class="wd">Auto<b>Contigo</b></span></button>
+  <nav class="nav" aria-label="Secciones">${NAV.map(it).join("")}<div class="nav-sec">Herramientas</div>${NAV2.map(it).join("")}
+  <a href="#emergency" class="sos ${r==="emergency"?"on":""}">${ic("alert")}Emergencia</a></nav>
+  <div class="side-user"><div class="avatar">${esc((session.name||"C")[0].toUpperCase())}</div><div class="grow"><div style="font-weight:600;font-size:13.5px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(session.name)}</div>
+  <button class="linkbtn xs" onclick="logout()">Cerrar sesión</button></div></div>`;
+}
+function drawTopbar(){
+  if(!session||!db)return;const v=V(),n=attention().filter(a=>a.lvl!=="info").length,dark=isDark();
+  $("#topbar").innerHTML=`<button class="brand" onclick="nav('home')" aria-label="Inicio"><span class="mk">${ic("shield",19)}</span><span class="word wd">Auto<b>Contigo</b></span></button>
+  <button class="vsw" onclick="vehiclePicker()" aria-label="Cambiar vehículo">${ic(VT[v.type].icon,18)}<span>${esc(vName(v))}</span>${db.vehicles.length>1?ic("chev",14):""}</button>
+  <span class="grow"></span>
+  <button class="ibtn" onclick="noticeSheet()" aria-label="Avisos">${ic("bell")}${n?`<span class="badge">${n}</span>`:""}</button>
+  <button class="ibtn" onclick="toggleTheme()" aria-label="Cambiar tema">${ic(dark?"sun":"moon")}</button>
+  <a class="ibtn" href="#emergency" aria-label="Emergencia" style="color:var(--bad);border-color:color-mix(in srgb,var(--bad) 40%,var(--line))">${ic("alert")}</a>`;
+}
+function drawTabbar(r){$("#tabbar").innerHTML=TABS.map(([id,l,i])=>`<a href="#${id}" class="${tabFor(r)===id?"on":""}">${ic(i,22)}${l}</a>`).join("")}
+const isDark=()=>{const t=document.documentElement.getAttribute("data-theme");return t?t==="dark":matchMedia("(prefers-color-scheme:dark)").matches};
+function toggleTheme(){const n=isDark()?"light":"dark";document.documentElement.setAttribute("data-theme",n);LS.set("ac_theme",n);
+  const m=document.querySelector('meta[name=theme-color]');if(m)m.content=n==="dark"?"#0a1015":"#eef2f5";
+  if(session&&db)drawTopbar();if(route()==="profile")render()}
+function noticeSheet(){
+  const a=attention();
+  sheet("Avisos",a.length?`<div class="list">${a.map(x=>`<a class="item" href="#${x.go}" onclick="closeSheet()"><span class="chip-ic ${x.lvl}">${ic(x.icon)}</span><div class="grow"><div class="t">${esc(x.t)}</div><div class="s">${esc(x.s)}</div></div>${ic("chev",16)}</a>`).join("")}</div>`:`<div class="empty"><b>Todo en orden</b>No tienes pendientes por ahora.</div>`);
+}
+function vehiclePicker(){
+  if(db.vehicles.length<2){nav("vehicles");return}
+  sheet("Elige tu vehículo",`<div class="list">${db.vehicles.map(v=>`<button class="item" onclick="setActive('${v.id}')"><span class="chip-ic">${ic(VT[v.type].icon)}</span><div class="grow"><div class="t">${esc(vName(v))}</div><div class="s">${esc(v.plate||"Sin placa")} · ${nf(v.km)} km</div></div>${v.id===db.active?ic("check",18):""}</button>`).join("")}</div>
+  <button class="btn soft block" style="margin-top:14px" onclick="closeSheet();nav('vehicles')">Administrar vehículos</button>`);
+}
+function setActive(id){db.active=id;closeSheet();commit()}
+
+function render(){
+  stopHero();
+  let r=route();
+  if(!session){
+    showPub();
+    if(r==="emergency")pubEmergency();else if(r==="login"||r==="register"||r==="forgot")pubAuth(r);else pubLanding();
+    lastRoute=r;window.scrollTo(0,0);return;
+  }
+  if(!db.onboarded&&r!=="onboarding"){location.hash="#onboarding";return}
+  if(r==="onboarding"){if(db.onboarded){location.hash="#home";return}showPub();pubOnboard();return}
+  if(!SCREENS[r]){location.hash="#home";return}
+  showShell();drawSide(r);drawTopbar();drawTabbar(r);
+  $("#screen").innerHTML=SCREENS[r]();
+  if(POST[r])POST[r]();
+  if(r!==lastRoute){window.scrollTo(0,0);if(lastRoute==="gps"){db.gps.alerts.forEach(a=>a.seen=true);persist();drawTopbar()}}
+  lastRoute=r;
+}
+
+/* ============ Pantallas públicas ============ */
+function pubTop(extra=""){return`<div class="ptop"><button class="brand" onclick="nav('')"><span class="mk">${ic("shield",19)}</span><span class="wd">Auto<b>Contigo</b></span></button>
+  <div class="row-flex">${extra}<button class="ibtn" onclick="toggleTheme();render()" aria-label="Cambiar tema">${ic(isDark()?"sun":"moon")}</button></div></div>`}
+function pubLanding(){
+  $("#pub").innerHTML=`${pubTop(`<a class="btn ghost s" href="#emergency">${ic("alert",16)}Emergencia</a><a class="btn soft s" href="#login">Iniciar sesión</a>`)}
+  <section class="land">
+    <div>
+      <h1>Tu vehículo al día. <span>Y siempre a la vista.</span></h1>
+      <p class="lead">Mantenimiento, documentos, gastos, GPS y ayuda en carretera en una sola app. Tú registras, AutoContigo te avisa antes de que algo venza o falle.</p>
+      <div class="cta"><a class="btn primary" href="#register">Crear mi cuenta</a><button class="btn ghost" onclick="demoLogin()">Probar con datos de ejemplo</button></div>
+      <p class="mut sm" style="margin-top:16px">Sin instalar nada. Tus datos se guardan en tu navegador.</p>
+    </div>
+    <div class="cluster" aria-label="Vista previa del tablero">
+      ${gaugeSVG("hero",0,140,{unit:"km/h",label:"Rastreo GPS",needle:true,color:"#35d39a"})}
+      <div class="cluster-row"><div><small>Salud del vehículo</small><b class="ok">87 / 100</b></div><div><small>SOAT vence en</small><b>22 días</b></div><div><small>Próximo aceite</small><b>800 km</b></div></div>
+    </div>
+  </section>
+  <section class="feats">
+    <article>${ic("wrench",26)}<h3>Mantenimiento con aviso</h3><p>Programa servicios por kilómetros o fecha y ve cuánto falta para cada uno.</p></article>
+    <article>${ic("doc",26)}<h3>Documentos sin sorpresas</h3><p>SOAT, técnico-mecánica y seguro con cuenta regresiva y estado claro.</p></article>
+    <article>${ic("wallet",26)}<h3>Gastos que se entienden</h3><p>Categorías, presupuesto mensual y rendimiento de combustible.</p></article>
+    <article>${ic("gps",26)}<h3>GPS y emergencias</h3><p>Recorridos, zona segura, alertas y accesos directos cuando algo sale mal.</p></article>
+  </section>
+  <div class="pfoot">AutoContigo · Versión de demostración. La información de ayuda no reemplaza a un mecánico ni a los servicios oficiales de emergencia.</div>`;
+  const ms=[0,62,118,84,40,96,70,28,0];let i=0;
+  const step=()=>{const v=ms[i++%ms.length];setGauge("hero",v,140,v>90?"#ff5470":"#35d39a")};
+  setTimeout(step,300);heroTimer=setInterval(step,1600);
+}
+function pubAuth(kind){
+  const reg=kind==="register",fg=kind==="forgot";
+  const title=reg?"Crea tu cuenta":fg?"Recupera tu acceso":"Bienvenido de nuevo";
+  const sub=reg?"Toma menos de un minuto y quedas listo para registrar tu vehículo.":fg?"Elige una contraseña nueva para tu cuenta.":"Entra para ver tu vehículo, tus gastos y tus alertas.";
+  $("#pub").innerHTML=`<div class="auth">
+   <aside class="auth-art">
+     <button class="brand" onclick="nav('')" style="color:#eaf1f5"><span class="mk">${ic("shield",19)}</span><span class="wd">Auto<b>Contigo</b></span></button>
+     <div><h2>Todo lo de tu vehículo, en un solo lugar.</h2>
+       <ul><li>${ic("check",18)}Servicios y documentos con cuenta regresiva.</li><li>${ic("check",18)}Recorridos, zona segura y alertas GPS.</li><li>${ic("check",18)}Accesos rápidos si te quedas varado.</li></ul></div>
+     <span class="xs" style="color:#62747f">Demostración: los datos viven solo en este navegador.</span>
+     ${gaugeSVG("auth",72,100,{unit:"de 100",label:"Salud",color:"#35d39a"})}
+   </aside>
+   <div class="auth-main"><form class="auth-box" novalidate onsubmit="event.preventDefault();${fg?"submitForgot()":`submitAuth('${kind}')`}">
+     <button type="button" class="backl" onclick="nav('')">${ic("back",16)}Volver al inicio</button>
+     <h1>${title}</h1><p class="sub">${sub}</p>
+     ${reg?`<label class="field"><span>Nombre</span><div class="inp-wrap">${ic("user",18)}<input class="inp" id="aName" autocomplete="name" placeholder="Tu nombre"></div><div class="ferr" id="aNameErr"></div></label>`:""}
+     <label class="field"><span>Correo</span><div class="inp-wrap">${ic("mail",18)}<input class="inp" id="aEmail" type="email" inputmode="email" autocomplete="email" placeholder="tu@correo.com"></div><div class="ferr" id="aEmailErr"></div></label>
+     <label class="field"><span>${fg?"Nueva contraseña":"Contraseña"}</span><div class="inp-wrap">${ic("lock",18)}<input class="inp" id="aPass" type="password" autocomplete="${reg||fg?"new-password":"current-password"}" placeholder="Mínimo 6 caracteres" ${reg?'oninput="passStrengthPaint()"':""}><button type="button" onclick="togglePass('aPass',this)" aria-label="Mostrar contraseña">${ic("eye")}</button></div>
+       ${reg?`<div class="strength" id="aStr"><i></i><i></i><i></i><i></i></div><div class="xs mut" id="aStrL" style="margin-top:4px;min-height:16px"></div>`:""}<div class="ferr" id="aPassErr"></div></label>
+     ${!reg&&!fg?`<div class="row-flex spread" style="margin-top:14px"><label class="check sm"><input type="checkbox" id="aRemember" checked>Mantener sesión iniciada</label><a class="linkbtn sm" href="#forgot">¿Olvidaste tu contraseña?</a></div>`:""}
+     <button class="btn primary block" id="aBtn" type="submit" style="margin-top:20px;padding:14px">${reg?"Crear cuenta":fg?"Guardar contraseña":"Iniciar sesión"}</button>
+     ${fg?"":`<div class="divider">o</div><button type="button" class="btn soft block" onclick="demoLogin()">Probar con datos de ejemplo</button>`}
+     <p class="sm mut" style="text-align:center;margin-top:18px">${reg?`¿Ya tienes cuenta? <a class="linkbtn" href="#login">Inicia sesión</a>`:fg?`<a class="linkbtn" href="#login">Volver a iniciar sesión</a>`:`¿Aún no tienes cuenta? <a class="linkbtn" href="#register">Créala aquí</a>`}</p>
+     <p class="xs mut" style="text-align:center;margin-top:14px">No uses una contraseña que ya tengas en otros sitios: esta demo no tiene servidor.</p>
+   </form></div></div>`;
+  setTimeout(()=>{const f=$("#aName")||$("#aEmail");f&&f.focus()},80);
+}
+
+/* ---- Emergencia (pública y dentro de la app) ---- */
+const HOTLINES=[["123","Línea única de emergencias","Policía, ambulancia y bomberos"],["132","Cruz Roja","Atención de urgencias y primeros auxilios"],["119","Bomberos","Incendios y rescate"],["#767","Policía de carreteras","Asistencia en vías nacionales"]];
+function emergencyBody(){
+  const p=db?db.profile:null,hist=db?db.emergencyHistory.slice().reverse().slice(0,4):[];
+  const acts=[["Batería descargada","battery","Buscar auxilio de batería","battery"],["Pinchazo","tire","Buscar montallantas","flat"],["Sin combustible","fuel","Ver gasolineras cercanas","fuel"],["Necesito una grúa","tow","Buscar servicio de grúa","tow"],["Compartir mi ubicación","share","Enviar por WhatsApp","share"],["Contacto de confianza","phone","Llamar a tu contacto","contact"]];
+  return`<div class="stack">
+  <div class="note bad">${ic("alert",20)}<div><b>Primero ponte a salvo.</b> Si hay heridos o peligro inmediato, llama de una vez. Esta app no reemplaza a los servicios oficiales.</div></div>
+  <div class="grid g2 keep">${HOTLINES.map(([n,t,s])=>`<a class="sos-num" href="tel:${n.replace("#","%23")}" onclick="logEmergency('Llamada ${n}')"><b>${n}</b><div><div style="font-weight:700">${t}</div><div class="s xs mut">${s}</div></div></a>`).join("")}</div>
+  <p class="xs mut">Números para Colombia. Si estás en otro país, usa el número de emergencias local.</p>
+  <div class="card"><h3 style="margin-bottom:14px">¿Qué te pasó?</h3>
+    <div class="grid g3">${acts.map(([t,i,s,k])=>`<button class="tile" onclick="emergencyAct('${k}')">${ic(i,24)}<span>${t}</span><span class="xs mut" style="font-weight:400">${s}</span></button>`).join("")}</div></div>
+  <div class="card"><h3 style="margin-bottom:14px">Si te quedas varado</h3>
+    ${[["Detente en un lugar seguro","Sal de la vía si puedes. Enciende las luces de parqueo."],["Señaliza","Coloca los triángulos a buena distancia y ponte el chaleco reflectivo."],["Sal del vehículo por el lado seguro","Espera detrás de la barrera o lejos de la calzada."],["Pide ayuda y comparte tu ubicación","Llama a asistencia o a tu contacto de confianza."]].map(([t,s],i)=>`<div class="row-flex" style="align-items:flex-start;padding:8px 0"><span class="step-n">${i+1}</span><div><b>${t}</b><div class="mut sm">${s}</div></div></div>`).join("")}</div>
+  ${p?`<div class="card"><div class="card-head"><h3>Tu contacto de confianza</h3><a class="btn soft s" href="#profile">${p.contactPhone?"Editar":"Agregar"}</a></div>${p.contactPhone?`<div class="item"><span class="chip-ic">${ic("user")}</span><div class="grow"><div class="t">${esc(p.contactName||"Contacto")}</div><div class="s">${esc(p.contactPhone)}</div></div><a class="btn ok s" href="tel:${esc(p.contactPhone)}">Llamar</a></div>`:`<div class="empty"><b>Aún no tienes contacto</b>Guarda a alguien que pueda ayudarte en una emergencia.</div>`}</div>`:""}
+  ${hist.length?`<div class="card"><h3 style="margin-bottom:12px">Últimas acciones</h3><div class="list">${hist.map(h=>`<div class="item"><span class="dot warn"></span><div class="grow"><div class="t">${esc(h.type)}</div><div class="s">${fmtDT(h.date)}</div></div></div>`).join("")}</div></div>`:""}
+  </div>`;
+}
+function logEmergency(t){if(db){db.emergencyHistory.push({id:uid(),type:t,date:new Date().toISOString()});if(db.emergencyHistory.length>30)db.emergencyHistory.shift();persist()}}
+function mapsSearch(q){return"https://www.google.com/maps/search/?api=1&query="+encodeURIComponent(q)}
+function openUrl(u){const a=document.createElement("a");a.href=u;a.target="_blank";a.rel="noopener";document.body.appendChild(a);a.click();a.remove()}
+function shareLocLink(){const g=db&&db.gps,p=g&&g.pos&&g.pos.lat!==undefined&&(g.pos.ts||g.mode==="sim")?g.pos:null;return p?`https://www.google.com/maps?q=${p.lat.toFixed(6)},${p.lng.toFixed(6)}`:null}
+function emergencyAct(k){
+  const map={battery:"auxilio batería vehículo cerca de mí",flat:"montallantas cerca de mí",fuel:"gasolinera cerca de mí",tow:"servicio de grúa cerca de mí"};
+  const names={battery:"Batería descargada",flat:"Pinchazo",fuel:"Sin combustible",tow:"Grúa",share:"Ubicación compartida",contact:"Llamada a contacto"};
+  if(map[k]){logEmergency(names[k]);openUrl(mapsSearch(map[k]));toast("Abriendo mapa con opciones cercanas");return}
+  if(k==="contact"){const p=db&&db.profile;if(p&&p.contactPhone){logEmergency(names[k]);location.href="tel:"+p.contactPhone}else{toast("Agrega un contacto de confianza en tu perfil");if(session)nav("profile")}return}
+  if(k==="share"){
+    const send=link=>{const txt=`Necesito ayuda con mi vehículo. Mi ubicación: ${link}`;const ph=(db&&db.profile.contactPhone||"").replace(/\D/g,"");logEmergency(names[k]);openUrl(`https://wa.me/${ph}?text=${encodeURIComponent(txt)}`)};
+    const known=shareLocLink();
+    if(!navigator.geolocation){known?send(known):toast("No se pudo obtener tu ubicación",{bad:true});return}
+    toast("Obteniendo tu ubicación…");
+    navigator.geolocation.getCurrentPosition(p=>send(`https://www.google.com/maps?q=${p.coords.latitude.toFixed(6)},${p.coords.longitude.toFixed(6)}`),()=>{known?send(known):toast("No pudimos leer tu ubicación. Activa el permiso de ubicación.",{bad:true})},{enableHighAccuracy:true,timeout:12000});
+  }
+}
+function pubEmergency(){
+  $("#pub").innerHTML=`${pubTop(`<button class="btn soft s" onclick="history.length>1?history.back():nav('')">${ic("back",16)}Volver</button>`)}
+  <div style="width:min(760px,calc(100% - 32px));margin:0 auto;padding:10px 0 60px"><div class="phead"><div><h1>Modo emergencia</h1><p>Accesos rápidos para cuando algo sale mal en la vía.</p></div></div>${emergencyBody()}</div>`;
+}
+
+/* ---- Bienvenida guiada (después de crear cuenta) ---- */
+const OB={step:0,type:"car",v:{}};
+function pubOnboard(){
+  const s=OB.step,name=(session.name||"").split(" ")[0];
+  const head=(t,p)=>`<h1 style="font-size:32px;font-weight:800;letter-spacing:-.04em">${t}</h1><p class="mut" style="margin-top:6px">${p}</p>`;
+  let body="";
+  if(s===0)body=`${head(`Hola, ${esc(name)}. ¿Qué vas a cuidar?`,"Elige el tipo de vehículo. Ajustaremos los servicios recomendados.")}
+    <div class="choice" style="margin-top:22px">${["car","moto"].map(t=>`<button class="${OB.type===t?"on":""}" onclick="OB.type='${t}';pubOnboard()">${ic(VT[t].icon,44)}${VT[t].label}</button>`).join("")}</div>
+    <button class="btn primary block" style="margin-top:24px;padding:14px" onclick="OB.step=1;pubOnboard()">Continuar</button>`;
+  if(s===1)body=`${head("Cuéntanos de tu "+VT[OB.type].label.toLowerCase(),"Solo lo básico. Puedes cambiarlo cuando quieras.")}
+    <div class="fgrid" style="margin-top:22px">
+      <label class="field"><span>Marca</span><input class="inp" id="o_brand" value="${esc(OB.v.brand||"")}" placeholder="${OB.type==="car"?"Renault":"Yamaha"}"></label>
+      <label class="field"><span>Modelo</span><input class="inp" id="o_model" value="${esc(OB.v.model||"")}" placeholder="${OB.type==="car"?"Duster":"MT-09"}"></label>
+      <label class="field"><span>Año</span><input class="inp" id="o_year" type="number" inputmode="numeric" value="${OB.v.year||new Date().getFullYear()}"></label>
+      <label class="field"><span>Placa (opcional)</span><input class="inp" id="o_plate" value="${esc(OB.v.plate||"")}" placeholder="ABC123" maxlength="7" style="text-transform:uppercase"></label>
+      <label class="field"><span>Kilometraje actual</span><input class="inp" id="o_km" type="number" inputmode="numeric" value="${OB.v.km??""}" placeholder="42000"></label>
+      <label class="field"><span>Combustible</span><select class="inp" id="o_fuel">${["Gasolina","Diésel","Gas","Híbrido","Eléctrico"].map(f=>`<option ${OB.v.fuel===f?"selected":""}>${f}</option>`).join("")}</select></label>
+    </div><div class="ferr" id="oErr"></div>
+    <div class="row-flex" style="margin-top:22px"><button class="btn soft" onclick="obRead();OB.step=0;pubOnboard()">Atrás</button><button class="btn primary grow" style="padding:14px" onclick="obNext()">Continuar</button></div>`;
+  if(s===2)body=`${head("Tus documentos","Agrega las fechas de vencimiento y te avisamos con tiempo. Puedes omitirlo.")}
+    <div class="fgrid" style="margin-top:22px">
+      <label class="field"><span>SOAT vence el</span><input class="inp" id="o_soat" type="date"></label>
+      <label class="field"><span>Técnico-mecánica vence el</span><input class="inp" id="o_tm" type="date"></label>
+      <label class="check w" style="grid-column:1/-1;margin-top:6px"><input type="checkbox" id="o_seed" checked>Programar los servicios de mantenimiento recomendados</label>
+    </div>
+    <div class="note" style="margin-top:16px">${ic("info",18)}<div>Los intervalos son referencias comunes. Confirma siempre con el manual de tu vehículo.</div></div>
+    <div class="row-flex" style="margin-top:22px"><button class="btn soft" onclick="OB.step=1;pubOnboard()">Atrás</button><button class="btn primary grow" style="padding:14px" onclick="obFinish()">Empezar a usar AutoContigo</button></div>`;
+  $("#pub").innerHTML=`${pubTop()}<div class="wiz"><div class="steps" aria-label="Paso ${s+1} de 3">${[0,1,2].map(i=>`<i class="${i<=s?"on":""}"></i>`).join("")}</div>${body}</div>`;
+}
+function obRead(){OB.v={brand:val("o_brand"),model:val("o_model"),year:Number(val("o_year"))||new Date().getFullYear(),plate:val("o_plate").toUpperCase(),km:val("o_km"),fuel:val("o_fuel")}}
+function obNext(){obRead();if(!OB.v.brand||!OB.v.model){$("#oErr").textContent="Escribe la marca y el modelo para continuar.";return}OB.step=2;pubOnboard()}
+function obFinish(){
+  const o=OB.v,km=Number(o.km)||0,v=newVehicle({type:OB.type,brand:o.brand,model:o.model,year:o.year,plate:o.plate,km,fuel:o.fuel});
+  const soat=val("o_soat"),tm=val("o_tm"),seed=$("#o_seed").checked;
+  db.vehicles=[v];db.active=v.id;db.maintenance=[];db.documents=[];
+  if(soat)db.documents.push({id:uid(),vid:v.id,name:"SOAT",date:soat,note:""});
+  if(tm)db.documents.push({id:uid(),vid:v.id,name:"Técnico-mecánica",date:tm,note:""});
+  if(seed)VT[OB.type].presets.slice(0,4).forEach(([title,interval])=>db.maintenance.push({id:uid(),vid:v.id,title,km:km+interval,date:"",cost:0,workshop:"",done:false,interval}));
+  db.onboarded=true;OB.step=0;OB.v={};commit(false);toast("Todo listo. Este es tu panel");nav("home");
+}
+
+/* ============ Pantallas de la app ============ */
+const ui={mTab:"pend",ePeriod:"month",rDest:"",rMode:"driving"};
+const phead=(t,p,acts="")=>`<div class="phead"><div><h1>${t}</h1>${p?`<p>${p}</p>`:""}</div><div class="acts">${acts}</div></div>`;
+const SCREENS={},POST={};
+const lvlPill=l=>({ok:"ok",soon:"warn",over:"bad",warn:"warn",bad:"bad"}[l]||"");
+
+/* ---- Inicio ---- */
+SCREENS.home=function(){
+  const v=V(),h=health(),att=attention(),hr=new Date().getHours(),g=hr<12?"Buenos días":hr<19?"Buenas tardes":"Buenas noches";
+  const first=(session.name||"").split(" ")[0],tip=tipOfDay(),g2=db.gps;
+  const pend=mine("maintenance").filter(m=>!m.done).sort((a,b)=>(a.km-v.km)-(b.km-v.km)),nx=pend[0];
+  const docs=mine("documents").slice().sort((a,b)=>daysUntil(a.date)-daysUntil(b.date)),dn=docs[0];
+  const sp=monthSpend(0),bud=db.profile.budget,eff=fuelEff();
+  const steps=[["Agrega la placa de tu vehículo",!!v.plate,"vehicles"],["Registra un documento (SOAT, técnico-mecánica)",docs.length>0,"documents"],["Programa un servicio de mantenimiento",mine("maintenance").length>0,"maintenance"],["Anota tu primer gasto",mine("expenses").length>0,"expenses"],["Guarda un contacto de confianza",!!db.profile.contactPhone,"profile"]];
+  const done=steps.filter(s=>s[1]).length,tr=db.gps.trips.filter(t=>(t.vid||db.vehicles[0].id)===v.id).slice(-1)[0];
+  const col=lvlColor(h.score),colv=`var(--${col})`;
+  return`${phead(`${g}, ${esc(first)}`,`Así va tu ${esc(vName(v))} hoy.`,`<button class="btn primary" onclick="expenseSheet()">${ic("plus",18)}Registrar gasto</button>`)}
+  <div class="hgrid"><div>
+    <section class="card">
+      <div class="vhead"><span class="vbadge">${ic(VT[v.type].icon,30)}</span><div class="grow"><h2>${esc(vName(v))}</h2><div class="mut sm">${v.year} · ${esc(v.plate||"Sin placa")} · <span class="num">${nf(v.km)} km</span></div></div><button class="btn soft s" onclick="kmSheet()">Actualizar km</button></div>
+      <div class="health" style="margin-top:14px"><div>${gaugeSVG("hh",h.score,100,{unit:"de 100",label:"Salud general",color:colv})}</div>
+        <div><b style="font-family:var(--fd);font-size:16px">Qué mueve tu puntaje</b><div class="mut xs" style="margin:2px 0 12px">Promedio de cinco factores. Toca uno para mejorarlo.</div>
+        ${h.parts.map(([n,x])=>`<a class="factor" href="#${{Batería:"diagnostic",Llantas:"diagnostic",Motor:"diagnostic",Documentos:"documents",Mantenimiento:"maintenance"}[n]}"><span>${n}</span><div class="bar"><i class="${lvlColor(x)}" style="width:${x}%"></i></div><b>${x}</b></a>`).join("")}</div></div>
+    </section>
+    <section class="card"><div class="card-head"><h3>Requiere atención</h3>${att.length?`<span class="pill ${att.some(a=>a.lvl==="bad")?"bad":"warn"}">${att.length}</span>`:""}</div>
+      ${att.length?`<div class="list">${att.slice(0,5).map(a=>`<a class="item" href="#${a.go}"><span class="chip-ic ${a.lvl}">${ic(a.icon)}</span><div class="grow"><div class="t">${esc(a.t)}</div><div class="s">${esc(a.s)}</div></div>${ic("chev",16)}</a>`).join("")}</div>`
+      :`<div class="empty"><b>Todo en orden</b>No tienes documentos por vencer ni servicios atrasados.</div>`}</section>
+    <section class="card"><div class="card-head"><h3>Acciones rápidas</h3></div><div class="tiles">
+      <button class="tile" onclick="nav('gps')">${ic("gps",24)}Iniciar recorrido</button>
+      <button class="tile" onclick="expenseSheet()">${ic("wallet",24)}Registrar gasto</button>
+      <button class="tile" onclick="maintSheet()">${ic("wrench",24)}Nuevo servicio</button>
+      <button class="tile" onclick="nav('nearby')">${ic("pin",24)}Buscar taller</button>
+      <button class="tile" onclick="nav('diagnostic')">${ic("gauge",24)}Revisar salud</button>
+      <button class="tile" onclick="nav('emergency')" style="color:var(--bad)">${ic("alert",24)}Emergencia</button></div></section>
+  </div><div>
+    <section class="card"><div class="grid g2 keep">
+      <div class="stat"><small>Gasto de ${MONTHS[new Date().getMonth()]}</small><strong class="num">${money(sp)}</strong>${bud>0?`<div class="bar" style="margin-top:8px"><i class="${sp>bud?"bad":sp>bud*.8?"warn":"ok"}" style="width:${clamp(sp/bud*100,2,100)}%"></i></div><small style="margin-top:4px">de ${money(bud)} de presupuesto</small>`:`<small style="margin-top:4px"><a class="linkbtn" href="#profile">Definir presupuesto</a></small>`}</div>
+      <div class="stat"><small>Próximo servicio</small><strong class="num">${nx?`${nf(Math.max(0,nx.km-v.km))} km`:"—"}</strong><small style="margin-top:4px">${nx?esc(nx.title):"Sin servicios programados"}</small></div>
+      <div class="stat"><small>Documento más próximo</small><strong class="num">${dn?(daysUntil(dn.date)<0?"Vencido":daysUntil(dn.date)+" días"):"—"}</strong><small style="margin-top:4px">${dn?esc(dn.name):"Sin documentos"}</small></div>
+      <div class="stat"><small>Rendimiento</small><strong class="num">${eff?eff.toFixed(0)+" km/gal":"—"}</strong><small style="margin-top:4px">${eff?"Promedio de tanqueos":"Anota tanqueos con odómetro"}</small></div></div></section>
+    <section class="card"><div class="card-head"><h3>GPS</h3><span class="pill ${tracking()?"ok":""}">${tracking()?"Rastreando":"Sin seguimiento"}</span></div>
+      <p class="mut sm">${tracking()?`Velocidad actual: <b class="num" style="color:var(--text)">${Math.round(g2.speed)} km/h</b>`:tr?`Último recorrido: <b style="color:var(--text)">${fmtDist(tr.dist)}</b> en ${fmtDur(tr.sec)}.`:"Inicia un recorrido para ver el mapa, la velocidad y las alertas."}</p>
+      <button class="btn soft block" style="margin-top:14px" onclick="nav('gps')">${ic("gps",18)}Abrir GPS</button></section>
+    <section class="card tip"><span class="chip-ic warn">${ic("bulb")}</span><div><h4>${tip[0]}</h4><p>${tip[1]}</p><a class="linkbtn sm" href="#learn" style="display:inline-block;margin-top:8px">Ver más lecciones</a></div></section>
+    ${!db.dismissGuide&&done<steps.length?`<section class="card"><div class="card-head"><h3>Primeros pasos</h3><span class="pill brand">${done}/${steps.length}</span></div><div class="bar" style="margin-bottom:10px"><i style="width:${done/steps.length*100}%"></i></div>
+      ${steps.map(s=>`<a class="check-step ${s[1]?"done":""}" href="#${s[2]}"><span class="box">${s[1]?ic("check",13):""}</span><span>${s[0]}</span></a>`).join("")}
+      <button class="linkbtn xs" style="margin-top:8px;color:var(--mut)" onclick="db.dismissGuide=true;commit()">Ocultar esta guía</button></section>`:""}
+  </div></div>`;
+};
+function kmSheet(){
+  sheet("Actualizar kilometraje",`<label class="field"><span>Kilometraje actual del odómetro</span><input class="inp" id="k_km" type="number" inputmode="numeric" value="${V().km}"></label>
+  <p class="mut sm" style="margin-top:10px">Con el kilometraje al día calculamos cuánto falta para cada servicio.</p>
+  <div class="row-flex" style="justify-content:flex-end;margin-top:20px"><button class="btn soft" onclick="closeSheet()">Cancelar</button><button class="btn primary" onclick="saveKm()">Guardar</button></div>`);
+}
+function saveKm(){const n=Number(val("k_km"));if(!(n>=0)||val("k_km")===""){toast("Escribe un kilometraje válido",{bad:true});return}V().km=Math.round(n);closeSheet();commit();toast("Kilometraje actualizado")}
+
+/* ---- GPS ---- */
+SCREENS.gps=function(){
+  const g=db.gps,v=V(),mx=VT[v.type].maxSpeed,trk=tracking(),sim=g.mode==="sim";
+  const trips=g.trips.filter(t=>(t.vid||db.vehicles[0].id)===v.id).slice().reverse();
+  return`${phead("GPS en vivo",`Sigue tu ${VT[v.type].label.toLowerCase()}, define una zona segura y recibe alertas.`,
+    trk?`<button class="btn bad" onclick="stopTrack()">${ic("stop",18)}Terminar recorrido</button>`:`<button class="btn primary" onclick="startTrack()">${ic("play",18)}Iniciar recorrido</button>`)}
+  <div class="row-flex wrapf" style="margin-bottom:14px"><div class="seg" role="group" aria-label="Fuente de ubicación"><button class="${sim?"on":""}" onclick="setGpsMode('sim')">Simulado</button><button class="${!sim?"on":""}" onclick="setGpsMode('real')">GPS del teléfono</button></div>
+    <span class="mut sm">${sim?"Ubicación de práctica: no usa tu posición real.":"Usa la ubicación real de este dispositivo."}</span></div>
+  ${GPS.err?`<div class="note bad" style="margin-bottom:14px">${ic("alert",18)}<div>${esc(GPS.err)}</div></div>`:""}
+  <div id="gpsLive" class="gpsgrid">
+    <div class="stack">
+      <div class="mapbox"><svg viewBox="0 0 640 400" role="img" aria-label="Mapa esquemático de la ubicación"><g id="mapInner">${mapInner()}</g></svg>
+        <div class="overlay"><span id="gpsState" class="pill ${trk?(g.engineOn?"ok":"warn"):""}">${trk?(g.engineOn?"En movimiento":"Detenido"):"Sin seguimiento"}</span><span class="pill num" id="coords">${g.pos&&g.pos.lat!==undefined&&(g.pos.ts||sim)?`${g.pos.lat.toFixed(5)}, ${g.pos.lng.toFixed(5)}`:"Sin señal"}</span></div></div>
+      <div class="row-flex wrapf"><button class="btn soft s" onclick="gpsOpenMaps()">${ic("pin",16)}Ver en Google Maps</button><button class="btn soft s" onclick="gpsShare()">${ic("share",16)}Compartir ubicación</button><button class="btn soft s" onclick="gpsPark()">${ic("parking",16)}Guardar como estacionamiento</button></div>
+      <p class="xs mut">Vista esquemática centrada en tu base: los anillos muestran distancia. Para ver calles reales usa “Ver en Google Maps”.</p>
+    </div>
+    <div class="spd">${gaugeSVG("spd",Math.round(g.speed),mx,{unit:"km/h",label:"Velocidad",needle:true,color:g.speed>g.limit?"var(--bad)":"var(--ok)"})}
+      <div class="kv"><div><small>Distancia</small><b id="kvDist">${GPS.trip?fmtDist(GPS.trip.dist):"0 m"}</b></div><div><small>Duración</small><b id="kvTime">${GPS.trip?fmtDur(GPS.trip.sec):"0 s"}</b></div>
+      <div><small>Rumbo</small><b id="kvHead">—</b></div><div><small>Precisión</small><b id="kvAcc">—</b></div>
+      <div><small>Distancia a la base</small><b id="kvDown">${g.pos?fmtDist(hav(g.base,g.pos)):"—"}</b></div><div><small>Velocidad máx.</small><b id="kvMax">—</b></div>
+      <div><small>Batería del rastreador</small><b id="kvBat">${g.battery}%</b></div><div><small>Señal</small><b id="kvSig">${g.signal}</b></div></div></div>
+  </div>
+  <div class="grid g2" style="margin-top:16px;align-items:start">
+    <section class="card"><h3 style="margin-bottom:6px">Zona segura y límites</h3>
+      <div class="srow" style="display:block"><div class="row-flex spread"><b class="sm">Radio de la zona segura</b><span class="pill brand num" id="fenceL">${fmtDist(g.fence)}</span></div>
+        <input type="range" min="50" max="3000" step="50" value="${g.fence}" oninput="gpsFence(this.value)" onchange="persist()" aria-label="Radio de la zona segura"></div>
+      <div class="srow" style="display:block"><div class="row-flex spread"><b class="sm">Límite de velocidad</b><span class="pill brand num" id="limL">${g.limit} km/h</span></div>
+        <input type="range" min="20" max="${mx}" step="5" value="${g.limit}" oninput="gpsLimit(this.value)" onchange="persist()" aria-label="Límite de velocidad"></div>
+      <div class="srow"><div><b class="sm">Modo vigilancia</b><div class="xs mut">Avisa si se mueve con el motor apagado.</div></div><label class="switch"><input type="checkbox" ${g.watch?"checked":""} onchange="gpsWatch(this.checked)" aria-label="Modo vigilancia"><i></i></label></div>
+      <div class="srow"><div><b class="sm">Base de la zona segura</b><div class="xs mut">Centro del círculo naranja.</div></div><button class="btn soft s" onclick="gpsSetBase()">Usar posición actual</button></div>
+    </section>
+    <section class="card"><h3 style="margin-bottom:6px">${sim?"Controles de práctica":"Cómo funciona"}</h3>
+      ${sim?`<div class="srow"><div><b class="sm">Velocidad de la simulación</b><div class="xs mut">Acelera el tiempo para ver más recorrido.</div></div><div class="seg">${[1,5,10].map(n=>`<button class="${GPS.sim===n?"on":""}" onclick="GPS.sim=${n};render()">×${n}</button>`).join("")}</div></div>
+      <div class="srow"><div><b class="sm">Motor</b><div class="xs mut">${trk?"Enciende o apaga durante el recorrido.":"Inicia un recorrido para controlarlo."}</div></div><button class="btn soft s" ${trk?"":"disabled"} onclick="db.gps.engineOn=!db.gps.engineOn;GPS.target=db.gps.engineOn?25:0;render()">${g.engineOn?"Apagar motor":"Encender motor"}</button></div>
+      <div class="srow"><div><b class="sm">Probar alerta antirrobo</b><div class="xs mut">Mueve el vehículo con el motor apagado.</div></div><button class="btn bad s" onclick="gpsTheft()">Simular</button></div>`
+      :`<div class="stack sm mut"><p>Al iniciar un recorrido el navegador pedirá permiso de ubicación. Funciona mejor al aire libre y con el GPS del teléfono encendido.</p><p>La velocidad y el rumbo salen de los sensores del dispositivo; si no los entrega, se calculan con tus últimos puntos.</p><p>Una web no puede rastrear un vehículo apagado ni en segundo plano. Para eso se necesita un rastreador con SIM.</p></div>`}
+    </section></div>
+  <div class="grid g2" style="margin-top:16px;align-items:start">
+    <section class="card"><div class="card-head"><h3>Alertas recientes</h3>${g.alerts.length?`<button class="btn soft s" onclick="db.gps.alerts=[];commit()">Limpiar</button>`:""}</div><div class="list" id="gpsAlerts">${alertsHTML()}</div></section>
+    <section class="card"><div class="card-head"><h3>Recorridos</h3><span class="pill">${trips.length?fmtDist(trips.reduce((a,t)=>a+t.dist,0))+" en total":"Aún sin datos"}</span></div>
+      <div class="list">${trips.length?trips.slice(0,6).map(t=>`<div class="item"><span class="chip-ic ok">${ic("route")}</span><div class="grow"><div class="t num">${fmtDist(t.dist)} · ${fmtDur(t.sec)}</div><div class="s">${fmtDT(t.date)} · media ${Math.round(t.avg)} km/h · máx. ${Math.round(t.max)} km/h</div></div><button class="ibtn" style="width:34px;height:34px" onclick="removeTrip('${t.id}')" aria-label="Eliminar recorrido">${ic("trash",16)}</button></div>`).join(""):`<div class="empty"><b>Todavía no hay recorridos</b>Toca “Iniciar recorrido” para grabar el primero.</div>`}</div></section></div>`;
+};
+POST.gps=()=>{paintGps()};
+function removeTrip(id){const g=db.gps,i=g.trips.findIndex(t=>t.id===id);if(i<0)return;const [t]=g.trips.splice(i,1);commit();toast('Recorrido eliminado',{undo:()=>{g.trips.splice(i,0,t);commit()}})}
+function gpsFence(v){const g=db.gps;g.fence=Number(v);const l=$("#fenceL");if(l)l.textContent=fmtDist(g.fence);const m=$("#mapInner");if(m)m.innerHTML=mapInner();GPS.inFence=g.pos?hav(g.base,g.pos)<=g.fence:true}
+function gpsLimit(v){db.gps.limit=Number(v);const l=$("#limL");if(l)l.textContent=v+" km/h"}
+function gpsWatch(on){const g=db.gps;g.watch=on;GPS.lock=on&&g.pos?{...g.pos}:null;persist();toast(on?"Vigilancia activa. Te avisaremos si se mueve con el motor apagado":"Vigilancia desactivada")}
+function gpsSetBase(){const g=db.gps;if(!g.pos||(g.mode==="real"&&!g.pos.ts)){toast("Aún no hay una posición. Inicia un recorrido primero.",{bad:true});return}g.base={lat:g.pos.lat,lng:g.pos.lng};g.baseSet=true;g.trail=[];GPS.inFence=true;commit();toast("Base actualizada")}
+function gpsTheft(){
+  const g=db.gps;if(!g.watch){toast("Activa primero el modo vigilancia",{bad:true});return}
+  if(tracking()){toast("Termina el recorrido para probar la alerta antirrobo",{bad:true});return}
+  if(!GPS.lock)GPS.lock={...g.pos};g.engineOn=false;g.speed=0;
+  const d=rnd(60,140),h=rnd(0,6.28),p=g.pos;processPos({lat:p.lat+d*Math.cos(h)/M_LAT,lng:p.lng+d*Math.sin(h)/mLng(p.lat),acc:9,ts:Date.now()});
+}
+function realLoc(){const g=db.gps;if(g.mode==="sim"){toast("Estás en modo simulado. Cambia a “GPS del teléfono” para usar tu ubicación real.",{bad:true});return null}
+  if(!g.pos||!g.pos.ts){toast("Aún no hay una ubicación. Inicia un recorrido.",{bad:true});return null}return g.pos}
+function gpsOpenMaps(){const p=realLoc();if(p)openUrl(`https://www.google.com/maps?q=${p.lat.toFixed(6)},${p.lng.toFixed(6)}`)}
+function copyText(t,msg="Copiado"){try{navigator.clipboard.writeText(t).then(()=>toast(msg),()=>toast("No se pudo copiar",{bad:true}))}catch{toast("No se pudo copiar",{bad:true})}}
+function gpsShare(){const p=realLoc();if(!p)return;const l=`https://www.google.com/maps?q=${p.lat.toFixed(6)},${p.lng.toFixed(6)}`;
+  if(navigator.share)navigator.share({title:"Mi ubicación",text:"Estoy aquí:",url:l}).catch(()=>{});else copyText(l,"Enlace de ubicación copiado")}
+function gpsPark(){const p=realLoc();if(!p)return;db.parking={place:"Última ubicación del rastreo",note:"",ts:new Date().toISOString(),lat:p.lat,lng:p.lng};commit(false);toast("Guardado en Estacionamiento");nav("parking")}
+
+/* ---- Mantenimiento ---- */
+SCREENS.maintenance=function(){
+  const v=V(),all=mine("maintenance"),pend=all.filter(m=>!m.done).sort((a,b)=>(a.km-v.km)-(b.km-v.km)),hist=all.filter(m=>m.done).sort((a,b)=>b.date.localeCompare(a.date));
+  const sug=VT[v.type].presets.filter(p=>!pend.some(m=>m.title===p[0]));
+  const tab=ui.mTab;
+  let body="";
+  if(tab==="pend")body=pend.length?`<div class="list">${pend.map(m=>{const s=mStatus(m),pr=m.interval?clamp((1-s.rem/m.interval)*100,3,100):null;
+    return`<div class="card tight mcard"><div class="row-flex spread wrapf"><div class="row-flex"><span class="chip-ic ${s.lvl==="over"?"bad":s.lvl==="soon"?"warn":"ok"}">${ic("wrench")}</span><div><div class="t" style="font-weight:700">${esc(m.title)}</div>
+      <div class="mut sm num">${s.rem<0?`Atrasado ${nf(-s.rem)} km`:`Faltan ${nf(s.rem)} km`}${m.date?` · ${fmtDate(m.date)}${s.dd!==null?` (${relDays(s.dd).toLowerCase()})`:""}`:""}${m.cost?` · ~${money(m.cost)}`:""}</div></div></div>
+      <span class="pill ${lvlPill(s.lvl)}">${s.lvl==="over"?"Atrasado":s.lvl==="soon"?"Pronto":"Al día"}</span></div>
+      ${pr!==null?`<div><div class="bar"><i class="${s.lvl==="over"?"bad":s.lvl==="soon"?"warn":"ok"}" style="width:${pr}%"></i></div><div class="xs mut" style="margin-top:4px">${Math.round(pr)}% del intervalo de ${nf(m.interval)} km</div></div>`:""}
+      <div class="row-flex wrapf"><button class="btn ok s" onclick="doneSheet('${m.id}')">${ic("check",16)}Marcar como hecho</button><button class="btn soft s" onclick="maintSheet('${m.id}')">${ic("edit",16)}Editar</button><button class="btn soft s" onclick="removeItem('maintenance','${m.id}','Servicio')">${ic("trash",16)}Eliminar</button></div></div>`}).join("")}</div>`
+    :`<div class="empty"><b>No tienes servicios programados</b>Agrega uno o elige entre los sugeridos para tu ${VT[v.type].label.toLowerCase()}.<div style="margin-top:14px"><button class="btn soft s" onclick="ui.mTab='sug';render()">Ver sugeridos</button></div></div>`;
+  if(tab==="hist")body=hist.length?`<div class="row-flex spread" style="margin-bottom:12px"><span class="mut sm">${hist.length} servicios realizados</span><span class="pill">Total invertido ${money(hist.reduce((a,m)=>a+m.cost,0))}</span></div><div class="list">${hist.map(m=>`<div class="item"><span class="chip-ic ok">${ic("check")}</span><div class="grow"><div class="t">${esc(m.title)}</div><div class="s num">${fmtDate(m.date)} · ${nf(m.km)} km${m.cost?` · ${money(m.cost)}`:""}${m.workshop?` · ${esc(m.workshop)}`:""}</div></div><button class="ibtn" style="width:34px;height:34px" onclick="removeItem('maintenance','${m.id}','Registro')" aria-label="Eliminar">${ic("trash",16)}</button></div>`).join("")}</div>`
+    :`<div class="empty"><b>Aún no hay historial</b>Cuando marques un servicio como hecho aparecerá aquí con su costo y kilometraje.</div>`;
+  if(tab==="sug")body=`<div class="note" style="margin-bottom:12px">${ic("info",18)}<div>Son intervalos habituales. Tu manual puede indicar otros valores: ajústalos al agregar cada servicio.</div></div>
+    <div class="list">${sug.length?sug.map(([t,i])=>`<div class="item"><span class="chip-ic">${ic("wrench")}</span><div class="grow"><div class="t">${t}</div><div class="s">Cada ${nf(i)} km · te tocaría a los ${nf(v.km+i)} km</div></div><button class="btn primary s" onclick="addPreset('${esc(t)}',${i})">Agregar</button></div>`).join(""):`<div class="empty"><b>Ya programaste todos</b>Buen trabajo.</div>`}</div>`;
+  return`${phead("Mantenimiento",`Tu ${esc(vName(v))} está en <b class="num" style="color:var(--text)">${nf(v.km)} km</b>.`,`<button class="btn soft" onclick="kmSheet()">Actualizar km</button><button class="btn primary" onclick="maintSheet()">${ic("plus",18)}Nuevo servicio</button>`)}
+  <div class="seg" style="margin-bottom:16px" role="tablist"><button class="${tab==="pend"?"on":""}" onclick="ui.mTab='pend';render()">Pendientes${pend.length?` (${pend.length})`:""}</button><button class="${tab==="hist"?"on":""}" onclick="ui.mTab='hist';render()">Historial</button><button class="${tab==="sug"?"on":""}" onclick="ui.mTab='sug';render()">Sugeridos</button></div>${body}`;
+};
+function addPreset(t,i){const v=V();db.maintenance.push({id:uid(),vid:v.id,title:t,km:v.km+i,date:"",cost:0,workshop:"",done:false,interval:i});ui.mTab="pend";commit();toast(`${t} programado`)}
+function maintSheet(id){
+  const m=id?db.maintenance.find(x=>x.id===id):null,v=V();
+  sheet(m?"Editar servicio":"Nuevo servicio",`<div class="fgrid">
+   <label class="field w"><span>Servicio</span><input class="inp" id="m_t" list="mlist" value="${esc(m?m.title:"")}" placeholder="Ej. Cambio de aceite"><datalist id="mlist">${VT[v.type].presets.map(p=>`<option value="${esc(p[0])}">`).join("")}</datalist></label>
+   <label class="field"><span>Te toca a los (km)</span><input class="inp" id="m_km" type="number" inputmode="numeric" value="${m?m.km:v.km+1000}"></label>
+   <label class="field"><span>Repetir cada (km)</span><input class="inp" id="m_int" type="number" inputmode="numeric" value="${m&&m.interval?m.interval:""}" placeholder="Opcional"></label>
+   <label class="field"><span>Fecha límite</span><input class="inp" id="m_d" type="date" value="${m?m.date:""}"></label>
+   <label class="field"><span>Costo estimado</span><input class="inp" id="m_c" type="number" inputmode="numeric" value="${m&&m.cost?m.cost:""}" placeholder="Opcional"></label>
+   <label class="field w"><span>Taller</span><input class="inp" id="m_w" value="${esc(m?m.workshop:"")}" placeholder="Opcional"></label></div><div class="ferr" id="mErr"></div>
+   <div class="row-flex" style="justify-content:flex-end;margin-top:18px"><button class="btn soft" onclick="closeSheet()">Cancelar</button><button class="btn primary" onclick="saveMaint('${id||""}')">Guardar</button></div>`);
+}
+function saveMaint(id){
+  const t=val("m_t");if(!t){$("#mErr").textContent="Escribe el nombre del servicio.";return}
+  const o={title:t,km:Number(val("m_km"))||0,interval:Number(val("m_int"))||0,date:val("m_d"),cost:Number(val("m_c"))||0,workshop:val("m_w")};
+  if(id)Object.assign(db.maintenance.find(x=>x.id===id),o);else db.maintenance.push({id:uid(),vid:V().id,done:false,...o});
+  closeSheet();ui.mTab="pend";commit();toast("Servicio guardado");
+}
+function doneSheet(id){
+  const m=db.maintenance.find(x=>x.id===id),v=V();
+  sheet("Marcar como hecho",`<p class="mut" style="margin-bottom:14px"><b style="color:var(--text)">${esc(m.title)}</b></p><div class="fgrid">
+   <label class="field"><span>Kilometraje al hacerlo</span><input class="inp" id="dn_km" type="number" inputmode="numeric" value="${v.km}"></label>
+   <label class="field"><span>Fecha</span><input class="inp" id="dn_d" type="date" value="${todayStr()}"></label>
+   <label class="field"><span>Costo real</span><input class="inp" id="dn_c" type="number" inputmode="numeric" value="${m.cost||""}" placeholder="0"></label>
+   <label class="field"><span>Taller</span><input class="inp" id="dn_w" value="${esc(m.workshop)}"></label>
+   <label class="check w" style="grid-column:1/-1"><input type="checkbox" id="dn_e" checked>Registrar el costo en Gastos</label>
+   ${m.interval?`<label class="check w" style="grid-column:1/-1"><input type="checkbox" id="dn_r" checked>Programar el siguiente en ${nf(m.interval)} km</label>`:""}</div>
+   <div class="row-flex" style="justify-content:flex-end;margin-top:18px"><button class="btn soft" onclick="closeSheet()">Cancelar</button><button class="btn primary" onclick="saveDone('${id}')">Guardar</button></div>`);
+}
+function saveDone(id){
+  const m=db.maintenance.find(x=>x.id===id),v=V(),km=Number(val("dn_km"))||v.km,cost=Number(val("dn_c"))||0,date=val("dn_d")||todayStr();
+  Object.assign(m,{done:true,km,date,cost,workshop:val("dn_w")});
+  if(km>v.km)v.km=km;
+  if($("#dn_e").checked&&cost>0)db.expenses.push({id:uid(),vid:v.id,date,cat:"Mantenimiento",amount:cost,note:m.title,qty:0,odo:0});
+  if($("#dn_r")&&$("#dn_r").checked)db.maintenance.push({id:uid(),vid:v.id,title:m.title,km:km+m.interval,date:"",cost:m.cost,workshop:m.workshop,done:false,interval:m.interval});
+  closeSheet();commit();toast("Servicio registrado en tu historial");
+}
+
+/* ---- Gastos ---- */
+function donutSVG(items,total){
+  const C=2*Math.PI*54;let off=0;
+  return`<div style="position:relative;width:150px;height:150px"><svg viewBox="0 0 140 140" width="150" height="150" style="transform:rotate(-90deg)" role="img" aria-label="Gasto por categoría"><circle cx="70" cy="70" r="54" fill="none" stroke="var(--line)" stroke-width="18"/>
+  ${items.map(([k,x])=>{const l=C*x/total,s=`<circle cx="70" cy="70" r="54" fill="none" stroke="${CATS[k]||"#8ea0ad"}" stroke-width="18" stroke-dasharray="${l.toFixed(2)} ${(C-l).toFixed(2)}" stroke-dashoffset="${(-off).toFixed(2)}"/>`;off+=l;return s}).join("")}</svg>
+  <div style="position:absolute;inset:0;display:grid;place-items:center;text-align:center"><div><div class="xs mut">Total</div><b style="font-family:var(--fd);font-size:17px" class="num">${money(total)}</b></div></div></div>`;
+}
+SCREENS.expenses=function(){
+  const all=mine("expenses").slice().sort((a,b)=>b.date.localeCompare(a.date)),now=new Date(),p=ui.ePeriod;
+  const inP=e=>p==="all"||(p==="month"?monthKey(e.date)===`${now.getFullYear()}-${pad(now.getMonth()+1)}`:e.date>=addDays(-180));
+  const list=all.filter(inP),total=list.reduce((a,e)=>a+e.amount,0);
+  const byCat={};list.forEach(e=>byCat[e.cat]=(byCat[e.cat]||0)+e.amount);
+  const cats=Object.entries(byCat).sort((a,b)=>b[1]-a[1]);
+  const months=[];for(let i=5;i>=0;i--){const d=new Date();d.setMonth(d.getMonth()-i,1);months.push([MONTHS[d.getMonth()],monthSpend(i),i===0])}
+  const mx=Math.max(1,...months.map(m=>m[1])),bud=db.profile.budget,sp=monthSpend(0),eff=fuelEff();
+  const avgM=avg(months.filter(m=>m[1]>0).map(m=>m[1]));
+  return`${phead("Gastos","Cuánto cuesta de verdad mantener tu vehículo.",`<button class="btn soft" onclick="exportCSV()">${ic("dl",18)}Exportar</button><button class="btn primary" onclick="expenseSheet()">${ic("plus",18)}Registrar gasto</button>`)}
+  <div class="grid g3" style="margin-bottom:16px">
+    <div class="card tight stat"><small>Este mes</small><strong class="num">${money(sp)}</strong>${bud>0?`<div class="bar" style="margin-top:8px"><i class="${sp>bud?"bad":sp>bud*.8?"warn":"ok"}" style="width:${clamp(sp/bud*100,2,100)}%"></i></div><small style="margin-top:4px">${sp>bud?`Superaste el presupuesto por ${money(sp-bud)}`:`Te quedan ${money(bud-sp)} de ${money(bud)}`}</small>`:`<small style="margin-top:4px"><a class="linkbtn" href="#profile">Definir presupuesto mensual</a></small>`}</div>
+    <div class="card tight stat"><small>Promedio mensual</small><strong class="num">${avgM?money(avgM):"—"}</strong><small style="margin-top:4px">Últimos 6 meses con gastos</small></div>
+    <div class="card tight stat"><small>Rendimiento de combustible</small><strong class="num">${eff?eff.toFixed(1)+" km/gal":"—"}</strong><small style="margin-top:4px">${eff?"Calculado con tus tanqueos":"Anota galones y odómetro al tanquear"}</small></div></div>
+  <div class="grid g2" style="align-items:start;margin-bottom:16px">
+    <section class="card"><div class="card-head"><h3>Últimos 6 meses</h3></div><div class="bars">${months.map(([l,v,c])=>`<div><small class="num">${v?Math.round(v/1000)+"k":""}</small><div class="b ${c?"cur":""}" style="height:${Math.max(4,v/mx*96)}px" title="${money(v)}"></div><small>${l}</small></div>`).join("")}</div></section>
+    <section class="card"><div class="card-head"><h3>Por categoría</h3><div class="seg"><button class="${p==="month"?"on":""}" onclick="ui.ePeriod='month';render()">Mes</button><button class="${p==="6m"?"on":""}" onclick="ui.ePeriod='6m';render()">6 meses</button><button class="${p==="all"?"on":""}" onclick="ui.ePeriod='all';render()">Todo</button></div></div>
+      ${cats.length?`<div class="donut">${donutSVG(cats,total)}<div class="legend">${cats.map(([k,x])=>`<div><i style="background:${CATS[k]||"#8ea0ad"}"></i>${k}<b>${money(x)}</b></div>`).join("")}</div></div>`:`<div class="empty"><b>Sin gastos en este periodo</b>Registra uno para ver el desglose.</div>`}</section></div>
+  <section class="card"><div class="card-head"><h3>Movimientos</h3><span class="pill">${list.length}</span></div><div class="list">${list.length?list.map(e=>`<div class="item"><span class="chip-ic" style="background:${CATS[e.cat]||"#8ea0ad"}22;color:${CATS[e.cat]||"#8ea0ad"}">${ic(e.cat==="Combustible"?"fuel":e.cat==="Mantenimiento"?"wrench":e.cat==="Seguro"?"shield":"wallet")}</span><div class="grow"><div class="t">${esc(e.note||e.cat)}</div><div class="s">${e.cat} · ${fmtDate(e.date)}${e.qty?` · ${e.qty} gal`:""}</div></div><b class="num">${money(e.amount)}</b>
+    <button class="ibtn" style="width:34px;height:34px" onclick="expenseSheet('${e.id}')" aria-label="Editar">${ic("edit",16)}</button><button class="ibtn" style="width:34px;height:34px" onclick="removeItem('expenses','${e.id}','Gasto')" aria-label="Eliminar">${ic("trash",16)}</button></div>`).join(""):`<div class="empty"><b>Sin movimientos</b>Toca “Registrar gasto” para empezar.</div>`}</div></section>`;
+};
+function expenseSheet(id){
+  const e=id?db.expenses.find(x=>x.id===id):null,cat=e?e.cat:"Combustible";
+  sheet(e?"Editar gasto":"Registrar gasto",`<div class="fgrid">
+   <label class="field"><span>Fecha</span><input class="inp" id="e_d" type="date" value="${e?e.date:todayStr()}"></label>
+   <label class="field"><span>Categoría</span><select class="inp" id="e_c" onchange="$('#fuelF').classList.toggle('hidden',this.value!=='Combustible')">${Object.keys(CATS).map(c=>`<option ${c===cat?"selected":""}>${c}</option>`).join("")}</select></label>
+   <label class="field"><span>Monto (COP)</span><input class="inp" id="e_a" type="number" inputmode="numeric" value="${e?e.amount:""}" placeholder="90000"></label>
+   <label class="field"><span>Descripción</span><input class="inp" id="e_n" value="${esc(e?e.note:"")}" placeholder="Ej. Tanqueo"></label>
+   <div id="fuelF" class="fgrid w ${cat==="Combustible"?"":"hidden"}" style="grid-column:1/-1"><label class="field"><span>Galones (opcional)</span><input class="inp" id="e_q" type="number" step="0.1" inputmode="decimal" value="${e&&e.qty?e.qty:""}"></label>
+   <label class="field"><span>Odómetro (opcional)</span><input class="inp" id="e_o" type="number" inputmode="numeric" value="${e&&e.odo?e.odo:V().km}"></label>
+   <p class="xs mut w" style="grid-column:1/-1">Con galones y odómetro calculamos cuántos kilómetros recorres por galón.</p></div></div><div class="ferr" id="eErr"></div>
+   <div class="row-flex" style="justify-content:flex-end;margin-top:18px"><button class="btn soft" onclick="closeSheet()">Cancelar</button><button class="btn primary" onclick="saveExpense('${id||""}')">Guardar gasto</button></div>`);
+}
+function saveExpense(id){
+  const a=Number(val("e_a"));if(!(a>0)){$("#eErr").textContent="Escribe un monto mayor a cero.";return}
+  const c=val("e_c"),o={date:val("e_d")||todayStr(),cat:c,amount:a,note:val("e_n"),qty:c==="Combustible"?Number(val("e_q"))||0:0,odo:c==="Combustible"&&val("e_q")?Number(val("e_o"))||0:0};
+  if(id)Object.assign(db.expenses.find(x=>x.id===id),o);else db.expenses.push({id:uid(),vid:V().id,...o});
+  closeSheet();commit();toast("Gasto guardado");
+}
+function exportCSV(){
+  const rows=[["Fecha","Vehículo","Categoría","Monto","Descripción","Galones","Odómetro"]];
+  db.expenses.slice().sort((a,b)=>a.date.localeCompare(b.date)).forEach(e=>{const v=db.vehicles.find(x=>x.id===e.vid);rows.push([e.date,v?vName(v):"",e.cat,e.amount,e.note||"",e.qty||"",e.odo||""])});
+  exportSheet("Exportar gastos",rows.map(r=>r.map(c=>`"${String(c).replace(/"/g,'""')}"`).join(",")).join("\n"),"autocontigo-gastos.csv");
+}
+function exportSheet(title,text,file){
+  window.__exp=text;window.__expf=file;
+  sheet(title,`<p class="mut sm" style="margin-bottom:10px">Copia el contenido o descárgalo como archivo.</p><textarea class="inp" readonly rows="9" style="font-family:ui-monospace,monospace;font-size:12px" onfocus="this.select()">${esc(text)}</textarea>
+  <div class="row-flex" style="justify-content:flex-end;margin-top:16px"><button class="btn soft" onclick="copyText(__exp,'Copiado al portapapeles')">Copiar</button><button class="btn primary" onclick="downloadText()">${ic("dl",18)}Descargar</button></div>`);
+}
+function downloadText(){try{const b=new Blob([window.__exp],{type:"text/plain;charset=utf-8"}),u=URL.createObjectURL(b),a=document.createElement("a");a.href=u;a.download=window.__expf;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(u),2000);toast("Descarga iniciada. Si no ocurre, usa Copiar")}catch{toast("No se pudo descargar. Usa Copiar",{bad:true})}}
+
+/* ---- Documentos ---- */
+SCREENS.documents=function(){
+  const docs=mine("documents").slice().sort((a,b)=>daysUntil(a.date)-daysUntil(b.date)),missing=DOC_TYPES.filter(t=>!docs.some(d=>d.name===t));
+  return`${phead("Documentos","Que ninguna fecha te sorprenda. Verifica siempre las fechas oficiales.",`<button class="btn primary" onclick="docSheet()">${ic("plus",18)}Agregar documento</button>`)}
+  ${docs.length?`<div class="list">${docs.map(d=>{const n=daysUntil(d.date),l=docLvl(n),pct=clamp(n/365*100,3,100),C=2*Math.PI*26;
+   return`<div class="card tight dcard"><div class="ring"><svg viewBox="0 0 64 64"><circle cx="32" cy="32" r="26" fill="none" stroke="var(--line)" stroke-width="6"/><circle cx="32" cy="32" r="26" fill="none" stroke="var(--${l})" stroke-width="6" stroke-linecap="round" stroke-dasharray="${C}" stroke-dashoffset="${C*(1-(n<0?0:pct/100))}"/></svg><b class="num" style="color:var(--${l})">${n<0?"!":n>999?"999+":n}</b></div>
+   <div><div style="font-weight:700;font-size:16px">${esc(d.name)}</div><div class="mut sm">${fmtDate(d.date)} · ${n<0?`Venció ${relDays(n).toLowerCase()}`:relDays(n)}</div>${d.note?`<div class="xs mut">${esc(d.note)}</div>`:""}<span class="pill ${l}" style="margin-top:6px">${n<0?"Vencido":n<=30?"Renueva pronto":"Vigente"}</span></div>
+   <div class="row-flex acts"><button class="btn ok s" onclick="renewSheet('${d.id}')">Renovar</button><button class="ibtn" style="width:36px;height:36px" onclick="docSheet('${d.id}')" aria-label="Editar">${ic("edit",16)}</button><button class="ibtn" style="width:36px;height:36px" onclick="removeItem('documents','${d.id}','Documento')" aria-label="Eliminar">${ic("trash",16)}</button></div></div>`}).join("")}</div>`
+   :`<div class="empty"><b>Aún no has agregado documentos</b>Empieza por el SOAT y la técnico-mecánica.</div>`}
+  ${missing.length?`<section class="card" style="margin-top:16px"><h3 style="margin-bottom:12px">Sugeridos</h3><div class="row-flex wrapf">${missing.map(t=>`<button class="btn soft s" onclick="docSheet('','${t}')">${ic("plus",14)}${t}</button>`).join("")}</div></section>`:""}`;
+};
+function docSheet(id,name){
+  const d=id?db.documents.find(x=>x.id===id):null;
+  sheet(d?"Editar documento":"Agregar documento",`<div class="fgrid"><label class="field w"><span>Documento</span><input class="inp" id="d_n" list="dlist" value="${esc(d?d.name:name||"")}" placeholder="Ej. SOAT"><datalist id="dlist">${DOC_TYPES.map(t=>`<option value="${t}">`).join("")}</datalist></label>
+  <label class="field"><span>Vence el</span><input class="inp" id="d_d" type="date" value="${d?d.date:""}"></label><label class="field"><span>Nota (opcional)</span><input class="inp" id="d_t" value="${esc(d?d.note:"")}" placeholder="N.º de póliza, aseguradora…"></label></div><div class="ferr" id="dErr"></div>
+  <div class="row-flex" style="justify-content:flex-end;margin-top:18px"><button class="btn soft" onclick="closeSheet()">Cancelar</button><button class="btn primary" onclick="saveDoc('${id||""}')">Guardar</button></div>`);
+}
+function saveDoc(id){const n=val("d_n"),dt=val("d_d");if(!n||!dt){$("#dErr").textContent="Completa el nombre y la fecha de vencimiento.";return}
+  const o={name:n,date:dt,note:val("d_t")};if(id)Object.assign(db.documents.find(x=>x.id===id),o);else db.documents.push({id:uid(),vid:V().id,...o});closeSheet();commit();toast("Documento guardado")}
+function renewSheet(id){const d=db.documents.find(x=>x.id===id),base=daysUntil(d.date)>0?d.date:todayStr();
+  sheet(`Renovar ${d.name}`,`<label class="field"><span>Nueva fecha de vencimiento</span><input class="inp" id="r_d" type="date" value="${addDays(365,base)}"></label><p class="mut sm" style="margin-top:10px">Sugerimos un año desde la fecha vigente. Confírmala con el documento real.</p>
+  <div class="row-flex" style="justify-content:flex-end;margin-top:18px"><button class="btn soft" onclick="closeSheet()">Cancelar</button><button class="btn primary" onclick="saveRenew('${id}')">Guardar</button></div>`)}
+function saveRenew(id){const dt=val("r_d");if(!dt)return;db.documents.find(x=>x.id===id).date=dt;closeSheet();commit();toast("Documento renovado")}
+
+/* ---- Diagnóstico ---- */
+const DIAG=[["battery","Batería","battery",[[50,"Haz probar la batería pronto: puede dejarte varado."],[70,"Empieza a perder carga. Evita dejar luces encendidas y prográmala para revisión."],[101,"Buen estado. Un viaje largo de vez en cuando ayuda a mantenerla."]]],
+ ["tires","Llantas","tire",[[50,"Revisa presión y desgaste hoy: es un tema de seguridad."],[70,"Verifica presión y busca desgaste desigual. Considera alinear y rotar."],[101,"Se ven bien. Revisa la presión en frío una vez al mes."]]],
+ ["engine","Motor","engine",[[50,"Llévalo a revisión antes de continuar usándolo."],[70,"Vigila ruidos, humo y temperatura. Programa una revisión."],[101,"Sin señales de alerta en esta lectura."]]]];
+SCREENS.diagnostic=function(){
+  const v=V(),d=v.diag;
+  return`${phead("Diagnóstico","Una lectura orientativa del estado general.",`<button class="btn soft" onclick="diagSheet()">${ic("edit",18)}Ajustar manualmente</button><button class="btn primary" onclick="runDiag()">${ic("refresh",18)}Ejecutar lectura</button>`)}
+  <div class="note warn" style="margin-bottom:16px">${ic("info",18)}<div><b>Lectura de demostración.</b> No usa sensores reales ni reemplaza un escáner OBD-II o una revisión profesional. ${d.scanned?`Última lectura: ${fmtDT(d.scanned)}.`:"Aún no has ejecutado una lectura."}</div></div>
+  <div class="grid g3">${DIAG.map(([k,n,i,adv])=>{const x=d[k],a=adv.find(r=>x<r[0])[1],l=lvlColor(x);return`<section class="card" style="text-align:center">${gaugeSVG("dg"+k,x,100,{unit:"%",label:n,color:`var(--${l})`,size:""})}<span class="pill ${l}">${x<50?"Revisar":x<70?"Atención":"Normal"}</span><p class="mut sm" style="margin-top:12px;text-align:left">${a}</p></section>`}).join("")}</div>
+  <section class="card" style="margin-top:16px"><h3 style="margin-bottom:10px">Cuándo ir directo al taller</h3><ul class="mut sm" style="margin:0;padding-left:18px;display:grid;gap:6px"><li>Luz de aceite o de temperatura encendida en rojo.</li><li>Humo, olor a quemado o ruidos metálicos.</li><li>El pedal de freno se siente blando o el vehículo se va hacia un lado al frenar.</li></ul></section>`;
+};
+function runDiag(){const d=V().diag;d.battery=Math.floor(55+Math.random()*45);d.tires=Math.floor(50+Math.random()*50);d.engine=Math.floor(65+Math.random()*35);d.scanned=new Date().toISOString();commit();toast("Lectura simulada actualizada")}
+function diagSheet(){const d=V().diag;
+  sheet("Ajustar manualmente",`<p class="mut sm" style="margin-bottom:10px">Ingresa tu propia estimación, por ejemplo tras una revisión en taller.</p>${DIAG.map(([k,n])=>`<div style="margin-bottom:12px"><div class="row-flex spread"><b class="sm">${n}</b><span class="pill num" id="dv_${k}">${d[k]}%</span></div><input type="range" min="0" max="100" value="${d[k]}" id="di_${k}" oninput="$('#dv_${k}').textContent=this.value+'%'" aria-label="${n}"></div>`).join("")}
+  <div class="row-flex" style="justify-content:flex-end;margin-top:14px"><button class="btn soft" onclick="closeSheet()">Cancelar</button><button class="btn primary" onclick="saveDiag()">Guardar</button></div>`)}
+function saveDiag(){const d=V().diag;DIAG.forEach(([k])=>d[k]=Number($("#di_"+k).value));d.scanned=new Date().toISOString();closeSheet();commit();toast("Valores actualizados")}
+
+/* ---- Aprende ---- */
+const LESSONS=[
+ ["wrench","Cuándo cambiar el aceite","3 min","El aceite lubrica y enfría el motor. Con el tiempo se degrada aunque uses poco el vehículo.<ul><li>Cambia por <b>kilómetros o por tiempo</b>, lo que llegue primero.</li><li>Cámbiale también el filtro.</li><li>Si el uso es exigente (trancones, calor, carga), acorta el intervalo.</li></ul>El valor exacto lo indica el manual de tu vehículo."],
+ ["tire","Presión de llantas","2 min","Una presión incorrecta gasta más combustible, desgasta la llanta y afecta el frenado.<ol><li>Mídela <b>en frío</b>, antes de rodar.</li><li>Usa el valor de la etiqueta de la puerta del conductor o del manual.</li><li>Revisa también la llanta de repuesto.</li></ol>"],
+ ["alert","Si el motor se recalienta","3 min","<ol><li>Apaga el aire acondicionado y sube la calefacción al máximo: ayuda a sacar calor.</li><li>Busca dónde detenerte y apaga el motor.</li><li><b>No abras la tapa del radiador</b> en caliente: puede salir vapor a presión.</li><li>Espera a que enfríe antes de revisar el nivel de refrigerante.</li><li>Si vuelve a pasar, llévalo al taller.</li></ol>"],
+ ["list","Cambiar una llanta paso a paso","5 min","<ol><li>Detente en terreno plano y firme; pon el freno de mano y las luces de parqueo.</li><li>Coloca los triángulos de señalización.</li><li>Afloja las tuercas <b>antes</b> de levantar el vehículo.</li><li>Ubica el gato en el punto indicado por el manual y levanta.</li><li>Retira las tuercas, cambia la llanta y ajusta en cruz.</li><li>Baja, aprieta con fuerza y revisa la presión de la llanta de repuesto.</li></ol>"],
+ ["battery","Cuida tu batería","2 min","<ul><li>Los viajes muy cortos no la recargan bien.</li><li>Limpia los bornes si ves sulfato blanco o verdoso.</li><li>Si el arranque se siente lento, hazla probar antes de quedarte varado.</li></ul>"],
+ ["shield","Frenos: señales de desgaste","2 min","<ul><li>Chillido agudo al frenar.</li><li>Pedal más blando o que baja demasiado.</li><li>El vehículo se desvía o vibra al frenar.</li></ul>Ante cualquiera de estas señales, pide una revisión pronto."],
+ ["fuel","Ahorra combustible","3 min","<ul><li>Acelera y frena con suavidad.</li><li>Mantén las llantas con la presión correcta.</li><li>Quita peso y accesorios que no uses.</li><li>Anota tus tanqueos con odómetro para medir tu rendimiento real.</li></ul>"],
+ ["doc","Documentos de tu vehículo","2 min","Mantén al día el <b>SOAT</b> y la <b>revisión técnico-mecánica</b> cuando aplique; la periodicidad depende del tipo de vehículo y su antigüedad, así que consulta la norma vigente. Guarda además una foto de la licencia y la tarjeta de propiedad."]];
+const LIGHTS=[["r","Presión de aceite","Detente y apaga el motor cuando sea seguro. Seguir rodando puede dañarlo."],["r","Temperatura del motor","Se está recalentando. Detente y déjalo enfriar."],["r","Batería / carga","El sistema de carga falla. Puedes quedarte sin energía pronto."],["r","Frenos","Freno de mano puesto o problema en el sistema. Revisa antes de seguir."],
+ ["y","Check engine","Falla en el motor o las emisiones. Programa una revisión con escáner."],["y","ABS","El frenado normal funciona, pero sin antibloqueo. Llévalo a revisar."],["y","Presión de llantas","Alguna llanta tiene poca presión. Verifícalas."],["y","Combustible","Reserva. Busca dónde tanquear."],
+ ["g","Luces de cruce e intermitentes","Informativas: indican que están encendidas."],["b","Luces altas","Recuerda bajarlas al cruzarte con otros vehículos."]];
+SCREENS.learn=function(){
+  const tip=tipOfDay();
+  return`${phead("Aprende","Lecciones cortas para cuidar mejor tu vehículo y evitar sustos.")}
+  <section class="card tip" style="margin-bottom:16px"><span class="chip-ic warn">${ic("bulb")}</span><div><div class="xs mut">Consejo de hoy</div><h4>${tip[0]}</h4><p>${tip[1]}</p></div></section>
+  <div class="list">${LESSONS.map(([i,t,m,b])=>`<details class="lesson"><summary><span class="chip-ic">${ic(i)}</span><div class="grow"><div class="t" style="font-weight:700">${t}</div><div class="s xs mut">Lectura de ${m}</div></div><span class="chev">${ic("chev",18)}</span></summary><div class="body">${b}</div></details>`).join("")}</div>
+  <section class="card" style="margin-top:18px"><h3 style="margin-bottom:4px">Luces del tablero</h3><p class="mut sm" style="margin-bottom:14px">El color te dice qué tan urgente es: <b style="color:#e5384f">rojo</b> detente, <b style="color:#e6a10c">amarillo</b> revisa pronto, <b style="color:#1fa971">verde</b> y <b style="color:#2f86e0">azul</b> informativas.</p>
+  <div class="grid g2">${LIGHTS.map(([c,t,s])=>`<div class="light"><span class="lb ${c}">${ic(c==="r"?"alert":c==="y"?"info":"check",20)}</span><div><b>${t}</b><div class="mut sm">${s}</div></div></div>`).join("")}</div></section>`;
+};
+
+/* ---- Cerca de mí y rutas ---- */
+SCREENS.nearby=function(){
+  const S=[["wrench","Talleres","taller mecánico automotriz"],["fuel","Gasolineras","estación de servicio gasolinera"],["tire","Montallantas","montallantas"],["car","Lavaderos","lavadero de carros"],["parking","Parqueaderos","parqueadero"],["tow","Grúas","servicio de grúa"],["battery","Baterías","tienda de baterías para carro"],["gear","Repuestos","tienda de repuestos automotrices"]];
+  return`${phead("Cerca de mí","Abre Google Maps con tu ubicación real y las opciones más cercanas.")}
+  <div class="grid g4">${S.map(([i,t,q])=>`<a class="tile" href="${mapsSearch(q+" cerca de mí")}" target="_blank" rel="noopener">${ic(i==="gear"?"wrench":i,26)}<span>${t}</span><span class="xs mut" style="font-weight:400">Abrir en Maps</span></a>`).join("")}</div>
+  <div class="note" style="margin-top:16px">${ic("info",18)}<div>Se abre en una pestaña nueva. Google Maps te pedirá permiso para usar tu ubicación; los horarios y calificaciones son los de Google.</div></div>`;
+};
+SCREENS.routes=function(){
+  const v=V(),modes=[["driving","Vehículo"],["two-wheeler","Moto"],["walking","A pie"],["transit","Transporte público"]];
+  if(ui.rMode==="driving"&&v.type==="moto"&&!ui._rm){ui.rMode="two-wheeler"}
+  return`${phead("Rutas","Planea el viaje: el tráfico y el tiempo se calculan en Google Maps.")}
+  <section class="card"><label class="field"><span>Destino</span><div class="inp-wrap">${ic("flag",18)}<input class="inp" id="rDest" value="${esc(ui.rDest)}" placeholder="Dirección o lugar" onkeydown="if(event.key==='Enter')openRoute()" oninput="ui.rDest=this.value"></div></label>
+    <div class="row-flex wrapf" style="margin-top:14px"><div class="seg">${modes.map(([k,l])=>`<button class="${ui.rMode===k?"on":""}" onclick="ui._rm=1;ui.rMode='${k}';render()">${l}</button>`).join("")}</div></div>
+    <div class="row-flex wrapf" style="margin-top:16px"><button class="btn primary" onclick="openRoute()">${ic("route",18)}Abrir ruta</button><button class="btn soft" onclick="savePlace()">${ic("plus",18)}Guardar destino</button></div></section>
+  <section class="card" style="margin-top:16px"><div class="card-head"><h3>Lugares guardados</h3></div><div class="list">${db.places.length?db.places.map(p=>`<div class="item"><span class="chip-ic">${ic("pin")}</span><button class="grow" style="background:none;border:0;text-align:left;padding:0" onclick="ui.rDest='${esc(p.addr).replace(/'/g,"\\'")}';render()"><div class="t">${esc(p.name)}</div><div class="s">${esc(p.addr)}</div></button><button class="btn soft s" onclick="ui.rDest='${esc(p.addr).replace(/'/g,"\\'")}';openRoute()">Ir</button><button class="ibtn" style="width:34px;height:34px" onclick="removeItem('places','${p.id}','Lugar')" aria-label="Eliminar">${ic("trash",16)}</button></div>`).join(""):`<div class="empty"><b>Aún no guardas lugares</b>Escribe un destino y toca “Guardar destino”.</div>`}</div></section>`;
+};
+function openRoute(){const d=val("rDest");if(!d){toast("Escribe un destino",{bad:true});return}openUrl(`https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(d)}&travelmode=${ui.rMode}`)}
+function savePlace(){const d=val("rDest");if(!d){toast("Escribe un destino para guardarlo",{bad:true});return}
+  sheet("Guardar destino",`<label class="field"><span>Nombre del lugar</span><input class="inp" id="pl_n" placeholder="Ej. Casa de mis papás"></label><p class="mut sm" style="margin-top:10px">${esc(d)}</p>
+  <div class="row-flex" style="justify-content:flex-end;margin-top:18px"><button class="btn soft" onclick="closeSheet()">Cancelar</button><button class="btn primary" onclick="doSavePlace()">Guardar</button></div>`)}
+function doSavePlace(){const n=val("pl_n");if(!n)return;db.places.push({id:uid(),name:n,addr:ui.rDest});closeSheet();commit();toast("Lugar guardado")}
+
+/* ---- Equipamiento ---- */
+SCREENS.equipment=function(){
+  const e=db.equipment,ok=e.filter(x=>x.ok).length,pct=e.length?Math.round(ok/e.length*100):0;
+  return`${phead("Equipamiento","Revisa lo que llevas antes de cada viaje largo.",`<button class="btn primary" onclick="equipSheet()">${ic("plus",18)}Agregar elemento</button>`)}
+  <section class="card" style="margin-bottom:16px"><div class="row-flex spread"><div><b style="font-family:var(--fd);font-size:20px">${ok} de ${e.length} listos</b><div class="mut sm">${pct===100?"Vas completo. ¡Buen viaje!":"Marca lo que ya llevas en el vehículo."}</div></div><span class="pill ${lvlColor(pct)}">${pct}%</span></div><div class="bar" style="margin-top:12px"><i class="${lvlColor(pct)}" style="width:${pct}%"></i></div></section>
+  <div class="list">${e.map(x=>`<div class="item"><label class="switch"><input type="checkbox" ${x.ok?"checked":""} onchange="toggleEquip('${x.id}')" aria-label="${esc(x.name)}"><i></i></label><div class="grow"><div class="t">${esc(x.name)}</div><div class="s">${x.ok?"Lo llevas":"Te falta"}</div></div><button class="ibtn" style="width:34px;height:34px" onclick="removeItem('equipment','${x.id}','Elemento')" aria-label="Eliminar">${ic("trash",16)}</button></div>`).join("")}</div>`;
+};
+function toggleEquip(id){const x=db.equipment.find(e=>e.id===id);x.ok=!x.ok;commit()}
+function equipSheet(){sheet("Agregar elemento",`<label class="field"><span>Nombre</span><input class="inp" id="q_n" placeholder="Ej. Cinta para reparar mangueras"></label><div class="row-flex" style="justify-content:flex-end;margin-top:18px"><button class="btn soft" onclick="closeSheet()">Cancelar</button><button class="btn primary" onclick="saveEquip()">Agregar</button></div>`)}
+function saveEquip(){const n=val("q_n");if(!n)return;db.equipment.push({id:uid(),name:n,ok:false});closeSheet();commit()}
+
+/* ---- Estacionamiento ---- */
+SCREENS.parking=function(){
+  const p=db.parking;
+  const mins=p?Math.max(0,Math.round((Date.now()-new Date(p.ts))/60000)):0,el=mins<60?`${mins} min`:`${Math.floor(mins/60)} h ${mins%60} min`;
+  return`${phead("Estacionamiento","Guarda dónde lo dejaste y vuelve sin dar vueltas.")}
+  ${p?`<section class="card" style="margin-bottom:16px"><div class="row-flex"><span class="vbadge">${ic("parking",28)}</span><div class="grow"><h3 style="font-size:20px">${esc(p.place||"Ubicación guardada")}</h3><div class="mut sm">Hace ${el} · ${fmtDT(p.ts)}</div>${p.note?`<div class="sm" style="margin-top:4px">${esc(p.note)}</div>`:""}</div></div>
+    <div class="row-flex wrapf" style="margin-top:16px">${p.lat!=null?`<button class="btn primary" onclick="openUrl('https://www.google.com/maps/dir/?api=1&destination=${p.lat},${p.lng}&travelmode=walking')">${ic("route",18)}Cómo llegar a pie</button><button class="btn soft" onclick="openUrl('https://www.google.com/maps?q=${p.lat},${p.lng}')">${ic("pin",18)}Ver en mapa</button><button class="btn soft" onclick="copyText('https://www.google.com/maps?q=${p.lat},${p.lng}','Enlace copiado')">${ic("share",18)}Copiar enlace</button>`:`<span class="pill warn">Sin coordenadas: solo referencia escrita</span>`}
+    <button class="btn bad" onclick="db.parking=null;commit();toast('Ubicación borrada')">${ic("trash",18)}Borrar</button></div></section>`:""}
+  <section class="card"><h3 style="margin-bottom:12px">${p?"Guardar otra ubicación":"Guardar dónde estacioné"}</h3><div class="stack">
+    <label class="field"><span>Referencia del lugar</span><input class="inp" id="p_place" placeholder="Ej. Parqueadero Centro Andino, piso 3"></label>
+    <label class="field"><span>Nota (opcional)</span><input class="inp" id="p_note" placeholder="Ej. Columna B4"></label></div>
+    <button class="btn primary" style="margin-top:16px" onclick="saveParking()">${ic("pin",18)}Guardar con mi ubicación actual</button>
+    <p class="xs mut" style="margin-top:10px">Si permites la ubicación, guardamos las coordenadas para que puedas volver caminando. Si no, se guarda solo tu referencia escrita.</p></section>`;
+};
+function saveParking(){
+  const place=val("p_place"),note=val("p_note"),fin=(la,lo)=>{db.parking={place:place||"Ubicación guardada",note,ts:new Date().toISOString(),lat:la,lng:lo};commit();toast(la!=null?"Ubicación guardada con coordenadas":"Guardado sin coordenadas")};
+  if(!navigator.geolocation){fin(null,null);return}
+  toast("Obteniendo tu ubicación…");
+  navigator.geolocation.getCurrentPosition(p=>fin(+p.coords.latitude.toFixed(6),+p.coords.longitude.toFixed(6)),()=>fin(null,null),{enableHighAccuracy:true,timeout:9000});
+}
+
+/* ---- Mis vehículos ---- */
+SCREENS.vehicles=function(){
+  return`${phead("Mis vehículos","Cada vehículo tiene su propio mantenimiento, gastos y documentos.",`<button class="btn primary" onclick="vehicleSheet()">${ic("plus",18)}Agregar vehículo</button>`)}
+  <div class="list">${db.vehicles.map(v=>{const on=v.id===db.active;return`<div class="card tight"><div class="row-flex wrapf"><span class="vbadge" style="width:48px;height:48px">${ic(VT[v.type].icon,26)}</span><div class="grow"><div style="font-weight:700;font-size:17px;font-family:var(--fd)">${esc(vName(v))}</div><div class="mut sm">${v.year} · ${esc(v.plate||"Sin placa")} · <span class="num">${nf(v.km)} km</span> · ${esc(v.fuel)}${v.color?" · "+esc(v.color):""}</div></div>${on?'<span class="pill ok">En uso</span>':`<button class="btn soft s" onclick="setActive('${v.id}')">Usar este</button>`}
+    <button class="ibtn" style="width:36px;height:36px" onclick="vehicleSheet('${v.id}')" aria-label="Editar">${ic("edit",16)}</button>${db.vehicles.length>1?`<button class="ibtn" style="width:36px;height:36px" onclick="delVehicle('${v.id}')" aria-label="Eliminar">${ic("trash",16)}</button>`:""}</div></div>`}).join("")}</div>`;
+};
+function vehicleSheet(id){
+  const v=id?db.vehicles.find(x=>x.id===id):newVehicle({year:new Date().getFullYear()});
+  sheet(id?"Editar vehículo":"Agregar vehículo",`<div class="fgrid"><label class="field w"><span>Tipo</span><div class="seg" id="v_type" data-v="${v.type}" style="display:flex"><button style="flex:1" class="${v.type==="car"?"on":""}" onclick="pickType('car')">Carro</button><button style="flex:1" class="${v.type==="moto"?"on":""}" onclick="pickType('moto')">Moto</button></div></label>
+  <label class="field"><span>Marca</span><input class="inp" id="v_b" value="${esc(v.brand)}"></label><label class="field"><span>Modelo</span><input class="inp" id="v_m" value="${esc(v.model)}"></label>
+  <label class="field"><span>Año</span><input class="inp" id="v_y" type="number" value="${v.year}"></label><label class="field"><span>Placa</span><input class="inp" id="v_p" value="${esc(v.plate)}" maxlength="7" style="text-transform:uppercase"></label>
+  <label class="field"><span>Kilometraje</span><input class="inp" id="v_k" type="number" inputmode="numeric" value="${v.km}"></label><label class="field"><span>Combustible</span><select class="inp" id="v_f">${["Gasolina","Diésel","Gas","Híbrido","Eléctrico"].map(f=>`<option ${v.fuel===f?"selected":""}>${f}</option>`).join("")}</select></label>
+  <label class="field w"><span>Color (opcional)</span><input class="inp" id="v_c" value="${esc(v.color||"")}"></label></div><div class="ferr" id="vErr"></div>
+  <div class="row-flex" style="justify-content:flex-end;margin-top:18px"><button class="btn soft" onclick="closeSheet()">Cancelar</button><button class="btn primary" onclick="saveVehicle('${id||""}')">Guardar</button></div>`);
+}
+function pickType(t){const s=$("#v_type");s.dataset.v=t;[...s.children].forEach((b,i)=>b.classList.toggle("on",(i===0)===(t==="car")))}
+function saveVehicle(id){
+  const b=val("v_b"),m=val("v_m");if(!b||!m){$("#vErr").textContent="Escribe la marca y el modelo.";return}
+  const o={type:$("#v_type").dataset.v,brand:b,model:m,year:Number(val("v_y"))||new Date().getFullYear(),plate:val("v_p").toUpperCase(),km:Number(val("v_k"))||0,fuel:val("v_f"),color:val("v_c")};
+  if(id)Object.assign(db.vehicles.find(x=>x.id===id),o);else{const v=newVehicle(o);db.vehicles.push(v);db.active=v.id}
+  closeSheet();commit();toast("Vehículo guardado");
+}
+function delVehicle(id){const v=db.vehicles.find(x=>x.id===id);confirmSheet("Eliminar vehículo",`Se eliminará <b>${esc(vName(v))}</b> junto con su mantenimiento, gastos y documentos. Esta acción no se puede deshacer.`,"Eliminar",()=>{
+  db.vehicles=db.vehicles.filter(x=>x.id!==id);["maintenance","expenses","documents"].forEach(k=>db[k]=db[k].filter(x=>x.vid!==id));if(db.active===id)db.active=db.vehicles[0].id;commit();toast("Vehículo eliminado")})}
+
+/* ---- Perfil y datos ---- */
+SCREENS.profile=function(){
+  const p=db.profile,th=LS.get("ac_theme");
+  return`${phead("Perfil y datos","Tu cuenta, tus preferencias y tus copias de seguridad.")}
+  <div class="grid g2" style="align-items:start">
+  <section class="card"><h3 style="margin-bottom:14px">Cuenta</h3><div class="row-flex" style="margin-bottom:14px"><div class="avatar" style="width:48px;height:48px;font-size:20px">${esc((session.name||"C")[0].toUpperCase())}</div><div><div style="font-weight:700">${esc(session.name)}</div><div class="mut sm">${esc(session.email)}</div></div></div>
+    ${session.demo?`<div class="note" style="margin-bottom:14px">${ic("info",18)}<div>Estás en modo demo. Crea una cuenta para guardar tus propios datos.</div></div>`:""}
+    <div class="row-flex wrapf"><button class="btn soft s" onclick="pwSheet()" ${session.demo?"disabled":""}>Cambiar contraseña</button><button class="btn soft s" onclick="logout()">Cerrar sesión</button></div></section>
+  <section class="card"><h3 style="margin-bottom:14px">Emergencia y presupuesto</h3><div class="stack">
+    <label class="field"><span>Contacto de confianza</span><input class="inp" id="pf_cn" value="${esc(p.contactName)}" placeholder="Nombre"></label>
+    <label class="field"><span>Teléfono del contacto</span><input class="inp" id="pf_cp" type="tel" inputmode="tel" value="${esc(p.contactPhone)}" placeholder="3001234567"></label>
+    <label class="field"><span>Presupuesto mensual del vehículo (COP)</span><input class="inp" id="pf_b" type="number" inputmode="numeric" value="${p.budget||""}" placeholder="Ej. 450000"></label></div>
+    <button class="btn primary" style="margin-top:16px" onclick="saveProfile()">Guardar</button></section>
+  <section class="card"><h3 style="margin-bottom:14px">Apariencia</h3><div class="seg"><button class="${!th?"on":""}" onclick="setTheme('')">Sistema</button><button class="${th==="light"?"on":""}" onclick="setTheme('light')">Claro</button><button class="${th==="dark"?"on":""}" onclick="setTheme('dark')">Oscuro</button></div></section>
+  <section class="card"><h3 style="margin-bottom:6px">Tus datos</h3><p class="mut sm" style="margin-bottom:14px">Se guardan solo en este navegador. Haz copias de seguridad de vez en cuando.</p>
+    <div class="row-flex wrapf"><button class="btn soft s" onclick="exportAll()">${ic("dl",16)}Exportar copia</button><button class="btn soft s" onclick="importSheet()">${ic("ul",16)}Importar copia</button><button class="btn soft s" onclick="exportCSV()">Gastos en CSV</button></div>
+    <div class="row-flex wrapf" style="margin-top:14px"><button class="btn bad s" onclick="wipeData()">Borrar mis datos</button>${session.demo?"":`<button class="btn bad s" onclick="deleteAccount()">Eliminar cuenta</button>`}</div></section></div>`;
+};
+function saveProfile(){const p=db.profile;p.contactName=val("pf_cn");p.contactPhone=val("pf_cp");p.budget=Number(val("pf_b"))||0;commit();toast("Perfil guardado")}
+function setTheme(t){if(t){document.documentElement.setAttribute("data-theme",t);LS.set("ac_theme",t)}else{document.documentElement.removeAttribute("data-theme");LS.del("ac_theme")}drawTopbar();render()}
+function exportAll(){exportSheet("Copia de seguridad",JSON.stringify({app:"AutoContigo",version:3,exported:new Date().toISOString(),db},null,2),"autocontigo-copia.json")}
+function importSheet(){sheet("Importar copia",`<p class="mut sm" style="margin-bottom:10px">Pega aquí el contenido de una copia exportada. <b>Reemplazará tus datos actuales.</b></p><textarea class="inp" id="imp" rows="8" placeholder='{"app":"AutoContigo",...}' style="font-family:ui-monospace,monospace;font-size:12px"></textarea><div class="ferr" id="impErr"></div>
+  <div class="row-flex" style="justify-content:flex-end;margin-top:14px"><button class="btn soft" onclick="closeSheet()">Cancelar</button><button class="btn primary" onclick="doImport()">Importar</button></div>`)}
+function doImport(){try{const j=JSON.parse($("#imp").value),d=j.db||j;if(!d.vehicles)throw 0;db=ensureDb(d);db.onboarded=true;closeSheet();commit();toast("Datos importados")}catch{$("#impErr").textContent="El contenido no es una copia válida de AutoContigo."}}
+function wipeData(){confirmSheet("Borrar mis datos","Se eliminarán vehículos, servicios, gastos, documentos y recorridos de esta cuenta. Tu cuenta seguirá activa.","Borrar todo",()=>{if(tracking())stopTrack(false);db=emptyDB(newVehicle());persist();nav("onboarding");toast("Datos borrados")})}
+function deleteAccount(){confirmSheet("Eliminar cuenta","Se borrarán tu cuenta y todos tus datos de este navegador. No se puede deshacer.","Eliminar cuenta",()=>{const u=getUsers();delete u[session.email];setUsers(u);LS.del(dbKey());logout()})}
+function pwSheet(){sheet("Cambiar contraseña",`<div class="stack"><label class="field"><span>Contraseña actual</span><input class="inp" id="pw0" type="password" autocomplete="current-password"></label><label class="field"><span>Nueva contraseña</span><input class="inp" id="pw1" type="password" autocomplete="new-password" placeholder="Mínimo 6 caracteres"></label></div><div class="ferr" id="pwErr"></div>
+  <div class="row-flex" style="justify-content:flex-end;margin-top:16px"><button class="btn soft" onclick="closeSheet()">Cancelar</button><button class="btn primary" onclick="savePw()">Guardar</button></div>`)}
+async function savePw(){const u=getUsers(),me=u[session.email],p0=$("#pw0").value,p1=$("#pw1").value;
+  if((await sha(p0,me.salt))!==me.hash){$("#pwErr").textContent="La contraseña actual no coincide.";return}
+  if(p1.length<6){$("#pwErr").textContent="La nueva contraseña debe tener al menos 6 caracteres.";return}
+  me.salt=newSalt();me.hash=await sha(p1,me.salt);setUsers(u);closeSheet();toast("Contraseña actualizada")}
+
+/* ---- Más ---- */
+SCREENS.more=function(){
+  const items=[["documents","Documentos","doc","Vencimientos y renovaciones"],["diagnostic","Diagnóstico","gauge","Estado general"],["learn","Aprende","book","Lecciones y luces del tablero"],["nearby","Cerca de mí","pin","Talleres y servicios"],["routes","Rutas","route","Planea tu viaje"],["equipment","Equipamiento","list","Checklist de emergencia"],["parking","Estacionamiento","parking","Dónde lo dejé"],["vehicles","Mis vehículos","car","Garaje y fichas"],["profile","Perfil y datos","user","Cuenta y copias"],["emergency","Emergencia","alert","Ayuda inmediata"]];
+  return`${phead("Más herramientas")}<div class="grid g2 keep">${items.map(([id,t,i,s])=>`<a class="tile" href="#${id}" style="${id==="emergency"?"color:var(--bad)":""}">${ic(i,26)}<span>${t}</span><span class="xs mut" style="font-weight:400">${s}</span></a>`).join("")}</div>`;
+};
+SCREENS.emergency=function(){return`${phead("Modo emergencia","Accesos rápidos para cuando algo sale mal en la vía.")}${emergencyBody()}`};
+
+/* ============ Inicio de la aplicación ============ */
+function init(){
+  const t=LS.get("ac_theme");if(t)document.documentElement.setAttribute("data-theme",t);
+  const s=readSession();
+  if(s&&s.email){const users=getUsers();if(users[s.email]||s.demo){session=s;const raw=readJSON(dbKey(),null);db=raw?ensureDb(raw):(s.demo?sampleDB():emptyDB(newVehicle()));persist()}}
+  window.addEventListener("hashchange",render);
+  document.addEventListener("visibilitychange",()=>{if(!document.hidden&&session&&route()==="parking")render()});
+  window.addEventListener("beforeunload",()=>{try{persist()}catch{}});
+  render();
+}
+init();
+</script>
+</body>
+</html>
