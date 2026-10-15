@@ -1371,5 +1371,28 @@ function init(){
 }
 init();
 </script>
+  
+<!-- Botón para activar notificaciones push -->
+<div style="text-align: center; margin: 20px;">
+  <button
+    id="activar-notificaciones"
+    type="button"
+    style="
+      background: #800020;
+      color: white;
+      border: none;
+      border-radius: 10px;
+      padding: 12px 22px;
+      font-size: 16px;
+      cursor: pointer;
+    "
+  >
+    🔔 Activar notificaciones
+  </button>
+</div>
+
+<script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-messaging-compat.js"></script>
+<script src="./notificaciones.js"></script>
 </body>
 </html>
