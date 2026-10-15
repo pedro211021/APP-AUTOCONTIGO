@@ -1369,23 +1369,18 @@ function init(){
   window.addEventListener("beforeunload",()=>{try{persist()}catch{}});
   render();
 }
+
 init();
 </script>
-  
-<!-- Botón para activar notificaciones push -->
-<div style="text-align: center; margin: 20px;">
+
+<!-- Botón de prueba -->
+<div style="background: #fff0f3; padding: 20px; text-align: center;">
   <button
     id="activar-notificaciones"
     type="button"
-    style="
-      background: #800020;
-      color: white;
-      border: none;
-      border-radius: 10px;
-      padding: 12px 22px;
-      font-size: 16px;
-      cursor: pointer;
-    "
+    style="background: #800020; color: white; border: 0;
+           border-radius: 10px; padding: 14px 22px;
+           font-size: 16px; cursor: pointer;"
   >
     🔔 Activar notificaciones
   </button>
